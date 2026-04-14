@@ -23,10 +23,15 @@ public class Roadroller extends Actor
         getImage().scale(80,80);
     }
     public void act(){
-        move(-30);
-        if(getX()<=0)
-        {
+        move(-6);
+        if(getX()<=0){
             resetRoadroller();
+        }
+        
+        if(isTouching(Hero.class)){
+            SadFace sadFace = new SadFace();
+            getWorld().addObject(sadFace,300,200);
+            getWorld().removeObject(this);
         }
     }
     
