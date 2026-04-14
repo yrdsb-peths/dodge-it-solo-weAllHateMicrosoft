@@ -13,14 +13,30 @@ public class Roadroller extends Actor
      * the 'Act' or 'Run' button gets pressed in the environment.
      */
     private boolean faceLeft = false;
-    public void act()
-    {
+    private boolean resized = false;
+    public Roadroller(){
+        //Resizing and orienting the image
         if(!faceLeft){
             getImage().mirrorHorizontally();
             faceLeft = true;
         }
-        
         getImage().scale(80,80);
-        move(-3);
+    }
+    public void act(){
+        move(-30);
+        if(getX()<=0)
+        {
+            resetRoadroller();
+        }
+    }
+    
+    public void resetRoadroller(){
+        int num = Greenfoot.getRandomNumber(2);
+        if(num == 1){
+            setLocation(600,100);
+        }
+        else{
+            setLocation(600,300);
+        }
     }
 }
