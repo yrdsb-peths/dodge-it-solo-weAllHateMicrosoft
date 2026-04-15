@@ -4,8 +4,33 @@ import java.io.File;
 /**
  * Write a description of class Animator here.
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * Animator takes in the time and tracks the correct image from the animation
+ * Call animator with
+ * 
+ */
+
+
+/**
+ * ANIMATION LIST FOR DIO
+ * ---------------------
+ * Dash         - Runs
+ * High         - brain massage
+ * Idle         - Standing still
+ * Intro        - Cool intro
+ * Lose         - Defeat state
+ * Roll         - Dodge move
+ * Sratch       - Brain massag + wry
+ * Up           - Up slash
+ * WalkLeft     - Moving left
+ * WalkRight    - Moving right
+ * Wry          - WRYYYYYYY
+ * 
+ * (special: to be implemented later)
+ * Description: Dio teleports backwards as his Stand appears to punch.
+ * Requires two animations play simultaneously, and locatio change.
+ * WorldPunch   - Special attack
+ * Teleport     - pairs with WorldPunch
+ * 
  */
 public class Animator  
 {
@@ -21,7 +46,7 @@ public class Animator
         for (int i = 0 ; i < frameCount; i++){
             //%03d => 3 digits with leading zero
             String suffix = String.format("%03d",i);
-            String fileName = "dio/" + folderName +"/" + prefix + "_" + suffix + "png";
+            String fileName = "dio/" + folderName +"/" + prefix + "_" + suffix + ".png";
             frames[i] = new GreenfootImage(fileName);
         }
     }

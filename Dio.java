@@ -1,6 +1,6 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
-
-/**
+import java.util.HashMap; // Hash map for animation with its animator...
+/*
  * Write a description of class Hero here.
  * 
  * @author (your name) 
@@ -8,25 +8,24 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
  */
 public class Dio extends Actor
 {
-    private Animator idleAnim;
-    private Animator wryAnim;
-    private Animator walkLeftAnim;
-    private Animator walkRightAnim;
-    private Animator dashAnim;
-    private Animator highAnim;
+    private HashMap<String, Animator> animations = new HashMap<>();
+    //The current animation
     private Animator currentAnimator;
-    
+    private String currentAnimName = "";
     /**
      * Act - do whatever the Dio wants to do. This method is called whenever
      * the 'Act' or 'Run' button gets pressed in the environment.
      */
     boolean atTop = false;
     public Dio(){
-        idleAnim = new Animator("Idle");
-        wryAnim = new Animator("Wry");
-        dashAnim = new Animator("Dash");
-        currentAnimator = dashAnim;
-        setImage(currentAnimator.getCurrentFrame());
+        String[] animNames = {"Idle", "Wry", "Dash", "High", "Intro", "Roll", "WalkLeft", "WalkRight"};
+        for (String name : animNames) {
+            // Parameters: Folder name, Animation speed (lower is faster)
+            animations.put(name, new Animator(name));
+        }
+
+        // 2. Set the starting animation
+        setAnimation("Dash");
     }
     public void act()
     {
@@ -34,6 +33,13 @@ public class Dio extends Actor
         animationLogic();
     }
     
+    public void setAnimation(String name){
+        if (!currentAnimName.equals(name) && animations.containsKey(name)) {
+            currentAnimName = name;
+            currentAnimator = animations.get(name);
+            currentAnimator.reset();
+        }
+    }
     private void animationLogic(){
         setImage(currentAnimator.getCurrentFrame());
     }
@@ -48,5 +54,6 @@ public class Dio extends Actor
         else{
             setLocation(100,300);
         }
+        
     }
 }

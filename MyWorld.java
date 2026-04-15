@@ -13,7 +13,7 @@ public class MyWorld extends World {
         
 
         //Sample: this is how you call a banner
-        //addObject(new Banner(BossConfig.DIO), 1120, 200);
+        addObject(new Banner(BossConfig.DIO), 1120, 200);
     }
     
 }
