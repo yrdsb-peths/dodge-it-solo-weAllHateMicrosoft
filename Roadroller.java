@@ -28,7 +28,7 @@ public class Roadroller extends Actor
             resetRoadroller();
         }
         
-        if(isTouching(Hero.class)){
+        if(isTouching(Dio.class)){
             SadFace sadFace = new SadFace();
             getWorld().addObject(sadFace,300,200);
             getWorld().removeObject(this);
