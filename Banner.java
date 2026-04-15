@@ -59,23 +59,30 @@ public class Banner extends Actor{
     private List<SpriteOverlay> sprites = new ArrayList<>();
     
     private void render (int currentHeight){
+        render(currentHeight,255);
+    }
+    private void render (int currentHeight,int alpha){
         //Set base image height
         GreenfootImage canvas = new GreenfootImage(1000,400);
-        GreenfootImage bg = new GreenfootImage(baseImage);
-        bg.scale(900,Math.max(1,currentHeight));
+        //trying transparency
+        canvas.setColor(new Color(0,0,0,0));
+        canvas.fill();
         
-        canvas.drawImage(bg, (canvas.getWidth() - bg.getWidth())/2, (canvas.getHeight() - bg.getHeight())/2);
-        //Set sprites
-        for(SpriteOverlay s: sprites){
-            int centerX = canvas.getWidth()/2;
-            int centerY = canvas.getHeight()/2;
-            
-            int drawX = centerX - (s.image.getWidth()/2) + s.offsetX;
-            int drawY = centerY - (s.image.getHeight()/2) + s.offsetY;
-            
+        //Set background
+        Color c = config.bgColor;
+        int bgH = Math.max(1, currentHeight);
+        int bgW = 900;
+        int bgX = (canvas.getWidth() - bgW) / 2;
+        int bgY = (canvas.getHeight() - bgH) / 2;
+        canvas.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha));
+        canvas.fillRect(bgX, bgY, bgW, bgH);
+        // Set sprite
+        for (SpriteOverlay s : sprites) {
+            int drawX = canvas.getWidth()/2 - s.image.getWidth()/2 + s.offsetX;
+            int drawY = canvas.getHeight()/2 - s.image.getHeight()/2 + s.offsetY;
             canvas.drawImage(s.image, drawX, drawY);
         }
-        
+
         setImage(canvas);
     }
     public void act(){
@@ -123,21 +130,24 @@ public class Banner extends Actor{
         double ratio = d/200.0;
         int newHeight = 30 + (int)(120*ratio);
         render(newHeight);
+        if(speed >= 0){
+            state = 2;
+            speed = 0;
+        }
         
     }
     private void slideOut(){
         //Increasing speed in the positive direction
-        speed += 1.0;
+        speed += 1;
         setLocation(getX()+(int)speed,getY());
         //Resize the image
         int d = getX() -200;
-        double ratio = d/1000.0;
-        int newHeight = 30+(int)(120*Math.pow(ratio,0.5));
-        render(newHeight);
-        int alpha = (int)(255 * (1.0 - ratio));
+        double ratio = d/200.0;
+        int newHeight = 30 + (int)(120*ratio);
+        int alpha = (int)(255 * (1.0 - ratio/4));
         if (alpha < 0) alpha = 0;
         if (alpha > 255) alpha = 255;
-        getImage().setTransparency(alpha);
+        render(newHeight,alpha);
     }
     public void playRandomSound() {
     String[] sounds = config.sounds;
