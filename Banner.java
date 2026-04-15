@@ -24,6 +24,26 @@ public class Banner extends Actor{
     //Control the speed
     private double speed = -12.0;
     //a private class to store overlay items on the banner (like figure or text)
+    
+    public Banner(SpriteOverlay[] inputData){
+        //Currently, the image is a black rectangle
+        baseImage = new GreenfootImage(1010,150);
+        baseImage.setColor(Color.RED);
+        baseImage.fill();
+        
+        for(SpriteOverlay s: inputData){
+            sprites.add(s);
+        }
+        render(150);
+        
+        /*
+         *   setImage(new GreenfootImage(baseImage));
+         *   //We keep a base image so that distorting image wont result in loss of info
+         *   GreenfootImage img = new GreenfootImage(baseImage);
+         *   setImage(img);
+         */
+    }
+    
     public static class SpriteOverlay{
         GreenfootImage image;
         int offsetX;
@@ -37,26 +57,6 @@ public class Banner extends Actor{
     }
     //Make an arraylist of overlay items as they may be mutilples of them
     private List<SpriteOverlay> sprites = new ArrayList<>();
-    
-    public Banner(SpriteOverlay[] inputData){
-        //Currently, the image is a black rectangle
-        baseImage = new GreenfootImage(1010,150);
-        baseImage.setColor(Color.RED);
-        baseImage.fill();
-        
-        for(SpriteOverlay s: inputData){
-            sprites.add(s);
-        }
-        
-        render(150);
-        
-        /*
-         *   setImage(new GreenfootImage(baseImage));
-         *   //We keep a base image so that distorting image wont result in loss of info
-         *   GreenfootImage img = new GreenfootImage(baseImage);
-         *   setImage(img);
-         */
-    }
     
     private void render (int currentHeight){
         //Set base image height
@@ -136,8 +136,8 @@ public class Banner extends Actor{
         getImage().setTransparency(alpha);
     }
     public void playRandomSound() {
-        String[] sounds = {"wry.mp3", "muda_muda.mp3", "muda_barrage.mp3","kono_dio_da.mp3","stand_power.mp3"};
-        int index = Greenfoot.getRandomNumber(sounds.length); 
-        Greenfoot.playSound(sounds[index]);
+        String[] dio_sounds = {"wry.mp3", "muda_muda.mp3", "muda_barrage.mp3","kono_dio_da.mp3","stand_power.mp3"};
+        int index = Greenfoot.getRandomNumber(dio_sounds.length); 
+        Greenfoot.playSound(dio_sounds[index]);
     }
 }
