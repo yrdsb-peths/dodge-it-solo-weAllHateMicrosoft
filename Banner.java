@@ -60,9 +60,11 @@ public class Banner extends Actor{
     
     private void render (int currentHeight){
         //Set base image height
-        GreenfootImage canvas = new GreenfootImage(baseImage);
-        canvas.scale(900,Math.max(1,currentHeight));
+        GreenfootImage canvas = new GreenfootImage(1000,400);
+        GreenfootImage bg = new GreenfootImage(baseImage);
+        bg.scale(900,Math.max(1,currentHeight));
         
+        canvas.drawImage(bg, (canvas.getWidth() - bg.getWidth())/2, (canvas.getHeight() - bg.getHeight())/2);
         //Set sprites
         for(SpriteOverlay s: sprites){
             int centerX = canvas.getWidth()/2;
@@ -92,6 +94,7 @@ public class Banner extends Actor{
         if(Math.abs(dist)<=4){
             setLocation(400,getY());
             state = 1;
+            playRandomSound();
         }
         else{
             int step = (int)(dist*0.12);
@@ -131,5 +134,10 @@ public class Banner extends Actor{
         if (alpha < 0) alpha = 0;
         if (alpha > 255) alpha = 255;
         getImage().setTransparency(alpha);
+    }
+    public void playRandomSound() {
+        String[] sounds = {"wry.mp3", "muda_muda.mp3", "muda_barrage.mp3","kono_dio_da.mp3","stand_power.mp3"};
+        int index = Greenfoot.getRandomNumber(sounds.length); 
+        Greenfoot.playSound(sounds[index]);
     }
 }
