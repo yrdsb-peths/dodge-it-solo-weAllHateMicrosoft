@@ -12,7 +12,8 @@ public class MyWorld extends World {
         addObject(roadroller,400,100);
         
 
-        addObject(new Banner(BossConfig.DIO), 1120, 200);
+        //Sample: this is how you call a banner
+        //addObject(new Banner(BossConfig.DIO), 1120, 200);
     }
     
 }
