@@ -10,11 +10,11 @@ public enum BossConfig
 {
    DIO(
         Color.BLACK, 
-        new String[]{"wry.mp3", "muda_muda.mp3", "muda_barrage.mp3","kono_dio_da.mp3","stand_power.mp3"}, 
+        new String[]{"wry.mp3", "muda_muda.mp3", "kono_dio_da.mp3","stand_power.mp3"}, 
         new Banner.SpriteOverlay[] {
             // file name, width, heigh, x offset, y offset
-            new Banner.SpriteOverlay("dio.png", 90, 150, -200, -30),
-            new Banner.SpriteOverlay("dio_label.png", 300, 100, 0, 100)
+            new Banner.SpriteOverlay("dio_full.png", 90, 150, -200, 0),
+            new Banner.SpriteOverlay("dio_label.png", 300, 100, 0, 0)
         }
     );
     
