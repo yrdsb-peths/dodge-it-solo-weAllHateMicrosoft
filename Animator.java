@@ -19,7 +19,7 @@ import java.io.File;
  * Intro        - Cool intro
  * Lose         - Defeat state
  * Roll         - Dodge move
- * Sratch       - Brain massag + wry
+ * Scratch       - Brain massag + wry
  * Up           - Up slash
  * WalkLeft     - Moving left
  * WalkRight    - Moving right
@@ -34,11 +34,16 @@ import java.io.File;
  */
 public class Animator  
 {
+    public static final int FRAME_DELAY = 6;//Frames per image, higher = slower
     private GreenfootImage[] frames;
     private int currentFrame = 0;
     private int timer = 0;
     private int speed;//Higher = slower (frames between images)
     
+    /*
+     * The more detailed constructor for animator that takes in more parameters 
+     * to help with debugging and customizability. 
+     */
     public Animator(String folderName,String prefix, int frameCount, int speed){
         this.speed = speed;
         frames = new GreenfootImage[frameCount]; 
@@ -50,10 +55,14 @@ public class Animator
             frames[i] = new GreenfootImage(fileName);
         }
     }
+    /*
+     * The more general constructor for animator that only takes in folder name
+     * Easy to call
+     */
     public Animator(String folderName){
-        this(folderName,folderName,0,10);
+        this(folderName,folderName,0,5);
         int frameCount = countFrames(folderName);
-        this.speed = 10;
+        this.speed = FRAME_DELAY;
         this.frames = new GreenfootImage[frameCount];
         for (int i = 0; i < frameCount; i++) {
             String suffix = String.format("%03d",i);
@@ -62,6 +71,26 @@ public class Animator
         }
         
     }
+    /*
+     * The more general constructor for animator that only takes in folder name AND SPEED
+     * Easy to call
+     */
+    public Animator(String folderName,int speed){
+        this(folderName,folderName,0,speed);
+        int frameCount = countFrames(folderName);
+        this.speed = speed;
+        this.frames = new GreenfootImage[frameCount];
+        for (int i = 0; i < frameCount; i++) {
+            String suffix = String.format("%03d",i);
+            String fileName = "dio/" + folderName + "/" + folderName + "_" + suffix + ".png";
+            frames[i] = new GreenfootImage(fileName);
+        }
+        
+    }
+    /*
+     * Counts the number of frames in the folder for easy registration
+     * HASDS NOTHING TO DO WITH ANIMATION
+     */
     private int countFrames(String folderName) {
     // Greenfoot looks for images in the "images" folder of your project
     File dir = new File("images/dio/" + folderName);
@@ -75,6 +104,9 @@ public class Animator
     return 0;
     }
     
+    /*
+     * Find the current image given the current time.
+     */
     public GreenfootImage getCurrentFrame(){
         timer++;
         if(timer >= speed){
@@ -84,8 +116,17 @@ public class Animator
         return frames[currentFrame];
     }
     
+    /*
+     * Resets timer and frame. 
+     */
     public void reset(){
         currentFrame = 0; 
         timer = 0;
     }
+    /*
+     * adjust speed upon request
+     */
+    public void setSpeed(int speed) {
+    this.speed = speed;
+}
 }
