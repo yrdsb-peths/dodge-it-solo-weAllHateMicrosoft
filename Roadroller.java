@@ -6,7 +6,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
  * @author (your name) 
  * @version (a version number or a date)
  */
-public class Roadroller extends Actor
+public class Roadroller extends Obstacles
 {
     /**
      * Act - do whatever the Roadroller wants to do. This method is called whenever
@@ -32,14 +32,7 @@ public class Roadroller extends Actor
             MyWorld myWorld = (MyWorld) getWorld(); 
             myWorld.getGSM().changeState(new GameOverState());
             return;
-        }
-        
-        if(getX()<=0){
-            getWorld().removeObject(this);
-            return;
-        }
-        
-        
+        }       
     }
     
 }
