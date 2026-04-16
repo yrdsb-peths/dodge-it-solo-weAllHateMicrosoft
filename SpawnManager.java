@@ -23,6 +23,10 @@ public class SpawnManager
            //Make the game harder by make things spawn more often, but not decreasing every frame of course
            //if(spawnRate > 20) spawnRate--;
         }
-        
+    }
+    
+    private void spawnObstacle(MyWorld world){
+        int y = Greenfoot.getRandomNumber(world.getHeight());
+        world.addObject(new Roadroller(),world.getWidth(),y);
     }
 }

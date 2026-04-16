@@ -1,10 +1,9 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 import java.util.HashMap; // Hash map for animation with its animator...
 /*
- * Write a description of class Hero here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
+ *   Dio is the player. Although this is a class, this will only be one player 
+ *   (only one object) so static methods are used for convenience. 
+ *   (a pro programmar would probably spit at me for that statement)
  */
 public class Dio extends Actor
 {
@@ -58,7 +57,7 @@ public class Dio extends Actor
     /*
      * Overloaded version that accepts a speed
      */
-    public void setAnimation(String name, int speed) {
+    public static void setAnimation(String name, int speed) {
     if (animations.containsKey(name)) {
         animations.get(name).setSpeed(speed); // Update the speed
         setAnimation(name);                   // Call the original logic to switch
