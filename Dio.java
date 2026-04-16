@@ -5,13 +5,13 @@ import java.util.HashMap; // Hash map for animation with its animator...
  *   (only one object) so static methods are used for convenience. 
  *   (a pro programmar would probably spit at me for that statement)
  */
-public class Dio extends Actor
+public class Dio extends Player
 {
     //A hashmap(dictionary) of animations with key: name and value: the corresponding animator
-    private static HashMap<String, Animator> animations = new HashMap<>();
+    private HashMap<String, Animator> animations = new HashMap<>();
     //The current animationor and action name it takes in
-    private static Animator currentAnimator;
-    private static String currentAnimName = "";
+    private Animator currentAnimator;
+    private String currentAnimName = "";
 
 
     /*
@@ -33,19 +33,9 @@ public class Dio extends Actor
     }
     
     /*
-     * The main loop that gets called like (60?) times per second:
-     * Updates movement and logic.
-     */
-    public void act()
-    {
-        movementLogic();    
-        animationLogic();
-    }
-    
-    /*
      * Sets animatoin based on the name input.
      */
-    public static void setAnimation(String name){
+    public void setAnimation(String name){
         //Prevents repetitive calling
         if (!currentAnimName.equals(name) && animations.containsKey(name)) {
             currentAnimName = name;
@@ -57,7 +47,7 @@ public class Dio extends Actor
     /*
      * Overloaded version that accepts a speed
      */
-    public static void setAnimation(String name, int speed) {
+    public void setAnimation(String name, int speed) {
     if (animations.containsKey(name)) {
         animations.get(name).setSpeed(speed); // Update the speed
         setAnimation(name);                   // Call the original logic to switch
@@ -67,13 +57,13 @@ public class Dio extends Actor
     /*
      * Sets actor image as the correct frame. 
      */
-    private void animationLogic(){
+    protected void animationLogic(){
         setImage(currentAnimator.getCurrentFrame());
     }
     /*
      * Current, trashy movement logic that should be worked on
      */
-    private void movementLogic(){
+    protected void movementLogic(){
         if(Greenfoot.mouseClicked(null)){
             playRandomAnimation();
         }
@@ -88,6 +78,11 @@ public class Dio extends Actor
             setLocation(getX(), getY() + 5);
         }
         
+    }
+    //Die method is public because anyone can tell player to die
+    public void die(){
+        isDead = true;
+        setAnimation("Lose");
     }
     
     /*

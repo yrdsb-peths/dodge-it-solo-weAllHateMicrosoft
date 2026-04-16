@@ -14,7 +14,9 @@ public class Roadroller extends Obstacles
      */
     private boolean faceLeft = false;
     private boolean resized = false;
+    
     private MyWorld world;
+    
     public Roadroller(){
         //Resizing and orienting the image
         if(!faceLeft){
@@ -22,17 +24,36 @@ public class Roadroller extends Obstacles
             faceLeft = true;
         }
         getImage().scale(80,80);
-    }
-    public void act(){
-        move(-6);
-        if(isTouching(Dio.class)){
-            Dio.setAnimation("Lose");
-            SadFace sadFace = new SadFace();
-            getWorld().addObject(sadFace,300,200);
-            MyWorld myWorld = (MyWorld) getWorld(); 
-            myWorld.getGSM().changeState(new GameOverState());
-            return;
-        }       
+        
+        speed = 6;
     }
     
+    public void movementLogic(){
+        //Negative speed means moving from right to left
+        move(-speed);
+    }
+    
+    public void collisionLogic(){
+        if(isTouching(Dio.class)){
+            Dio player = (Dio) getOneIntersectingObject(Dio.class);
+            if (player != null && !player.isDead()) {
+            player.die();
+            
+            SadFace sadFace = new SadFace();
+            getWorld().addObject(sadFace,300,200);
+            
+            MyWorld myWorld = (MyWorld) getWorld(); 
+            myWorld.getGSM().changeState(new GameOverState());
+            }       
+        }
+        return;
+    
+    }
+    
+    public void checkRemove(){
+        if (getX() <= 0) {
+            getWorld().removeObject(this);
+        }
+        return;
+    }
 }

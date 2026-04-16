@@ -6,7 +6,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
  * @author (your name) 
  * @version (a version number or a date)
  */
-public class Obstacles extends Actor
+public abstract class Obstacles extends Actor
 {
     protected int speed;
     
@@ -16,9 +16,15 @@ public class Obstacles extends Actor
      */
     public void act()
     {
-        if (((MyWorld)getWorld()).getGSM().isState(PlayingState.class)) {
-            setLocation(getX() - speed, getY());
-            if (getX() <= 0) getWorld().removeObject(this);
-        }
+        MyWorld world = (MyWorld) getWorld();
+        if(world == null || !world.getGSM().isState(PlayingState.class))return;
+        
+        movementLogic();
+        collisionLogic();
+        
     }
+    
+    protected abstract void movementLogic();
+    protected abstract void collisionLogic();
+    protected abstract void checkRemove();
 }
