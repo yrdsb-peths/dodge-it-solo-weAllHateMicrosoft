@@ -9,12 +9,12 @@ import java.util.HashMap; // Hash map for animation with its animator...
 public class Dio extends Actor
 {
     //A hashmap(dictionary) of animations with key: name and value: the corresponding animator
-    private HashMap<String, Animator> animations = new HashMap<>();
+    private static HashMap<String, Animator> animations = new HashMap<>();
     //The current animationor and action name it takes in
-    private Animator currentAnimator;
-    private String currentAnimName = "";
+    private static Animator currentAnimator;
+    private static String currentAnimName = "";
 
-    boolean atTop = false;//Simple movement control - to be deleted
+
     /*
      * Contructus a DIO by setting up animations.
      * Currently default animation is Dash as a placeholder
@@ -27,7 +27,7 @@ public class Dio extends Actor
             animations.put(name, new Animator(name));
         }
         //Some animations use custom speeds
-        animations.put("Scratch", new Animator("Scratch",4));
+        animations.put("Scratch", new Animator("Scratch",3));
 
         // 2. Set the starting animation
         setAnimation("Dash");
@@ -46,7 +46,7 @@ public class Dio extends Actor
     /*
      * Sets animatoin based on the name input.
      */
-    public void setAnimation(String name){
+    public static void setAnimation(String name){
         //Prevents repetitive calling
         if (!currentAnimName.equals(name) && animations.containsKey(name)) {
             currentAnimName = name;
@@ -76,16 +76,28 @@ public class Dio extends Actor
      */
     private void movementLogic(){
         if(Greenfoot.mouseClicked(null)){
-            atTop = !atTop;
-            setAnimation("Scratch");
+            playRandomAnimation();
         }
         
-        if(atTop){
-            setLocation(100,100);
-        }
-        else{
-            setLocation(100,300);
+        if (Greenfoot.isKeyDown("up")) 
+        {
+            setLocation(getX(), getY() - 5);
         }
         
+        if (Greenfoot.isKeyDown("down")) 
+        {
+            setLocation(getX(), getY() + 5);
+        }
+        
+    }
+    
+    /*
+     * A funny method that... calls a random animation (obviously)
+     */
+     private void playRandomAnimation(){
+        Object[] keys = animations.keySet().toArray();
+        int randomIndex = Greenfoot.getRandomNumber(keys.length);
+        String randomAnimName = (String) keys[randomIndex];
+        setAnimation(randomAnimName);
     }
 }

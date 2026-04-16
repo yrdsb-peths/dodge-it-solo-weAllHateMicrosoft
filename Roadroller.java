@@ -29,6 +29,7 @@ public class Roadroller extends Actor
         }
         
         if(isTouching(Dio.class)){
+            Dio.setAnimation("Lose");
             SadFace sadFace = new SadFace();
             getWorld().addObject(sadFace,300,200);
             getWorld().removeObject(this);
