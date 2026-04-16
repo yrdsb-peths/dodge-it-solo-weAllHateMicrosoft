@@ -12,11 +12,13 @@ public class PlayingState implements GameState
         //The normal game running: spawns players, reset timers, play music etc.
         
         //Sample: this is how you call some basic actors
+        
         Dio dio = new Dio();
         world.addObject(dio,100,100);
 
         Roadroller roadroller = new Roadroller();
-        world.addObject(roadroller,400,100);
+        int y = Greenfoot.getRandomNumber(world.getHeight());
+        world.addObject(roadroller,400,y);
         
         spawnManager = new SpawnManager();
 

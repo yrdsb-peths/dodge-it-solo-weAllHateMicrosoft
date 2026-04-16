@@ -17,6 +17,8 @@ public abstract class Player extends Actor
     //Other methods are protected, meaning subclasses can access it but not the rest of the world
     protected abstract void movementLogic();
     protected abstract void animationLogic();
+    //Keep track of banner
+    protected boolean bannerSpawned = false; 
     /**
      * Act - do whatever the Player wants to do. This method is called whenever
      * the 'Act' or 'Run' button gets pressed in the environment.
@@ -24,7 +26,13 @@ public abstract class Player extends Actor
     public void act()
     {
         MyWorld world = (MyWorld) getWorld();
-        if(world == null || !world.getGSM().isState(PlayingState.class))return;
+        if(world == null) return;
+        if(!world.getGSM().isState(PlayingState.class)){
+            onPauseUpdate(world);
+            return;
+        }
+        //This banner is for DIO only. I need to tell him he can play banenr again.
+        bannerSpawned = false; 
         movementLogic();    
         animationLogic();
     }
@@ -33,5 +41,7 @@ public abstract class Player extends Actor
         return isDead;
     }
     
+    //Normally, players do nothing while being paused
+    protected void onPauseUpdate(MyWorld world) {}
     
 }

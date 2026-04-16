@@ -10,6 +10,7 @@ public class PausedState implements GameState
     public void enter(MyWorld world){
         //The game is paused
         //We will show something like a "GAME PAUSED" banner, but currently its empty
+
     }
     
     public void update(MyWorld world){
@@ -19,6 +20,7 @@ public class PausedState implements GameState
         if("p".equals(Greenfoot.getKey())){
             //Remove the pause state, resume to normal/whatever state previosly running.
             world.getGSM().popState();
+            
         }
         
         //Some eastereggs?

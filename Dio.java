@@ -25,7 +25,7 @@ public class Dio extends Player
             // Parameters: Folder name
             animations.put(name, new Animator(name));
         }
-        //Some animations use custom speeds
+        //Some animations use custom speeds: e.g. scratch is faster
         animations.put("Scratch", new Animator("Scratch",3));
 
         // 2. Set the starting animation
@@ -64,6 +64,7 @@ public class Dio extends Player
      * Current, trashy movement logic that should be worked on
      */
     protected void movementLogic(){
+
         if(Greenfoot.mouseClicked(null)){
             playRandomAnimation();
         }
@@ -82,7 +83,11 @@ public class Dio extends Player
     //Die method is public because anyone can tell player to die
     public void die(){
         isDead = true;
+        SadFace sadFace = new SadFace();
+        getWorld().addObject(sadFace,300,200);
         setAnimation("Lose");
+        MyWorld myWorld = (MyWorld) getWorld(); 
+        myWorld.getGSM().changeState(new GameOverState());
     }
     
     /*
@@ -94,4 +99,18 @@ public class Dio extends Player
         String randomAnimName = (String) keys[randomIndex];
         setAnimation(randomAnimName);
     }
+    
+    /*
+     * Dio's method overrides that ins player:
+     * normally player can't do anything
+     * but dio can move normally and play a cool banner
+     */
+    protected void onPauseUpdate(MyWorld world) {
+    if (!bannerSpawned) {
+        world.addObject(new Banner(BossConfig.DIO), 1120, 200);
+        bannerSpawned = true;
+    }
+    movementLogic(); // Dio moves during pause!
+    animationLogic();
+}
 }

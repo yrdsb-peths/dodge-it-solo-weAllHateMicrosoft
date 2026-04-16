@@ -34,23 +34,20 @@ public class Roadroller extends Obstacles
     }
     
     public void collisionLogic(){
-        if(isTouching(Dio.class)){
-            Dio player = (Dio) getOneIntersectingObject(Dio.class);
-            if (player != null && !player.isDead()) {
+        //I'm really afraid of that null pointer error so this is a safety check.
+        if (getWorld() == null) return; 
+
+        // Get the player directly (no need to use isTouching first, this is faster)
+        Player player = (Player) getOneIntersectingObject(Player.class);
+        if (player != null && !player.isDead()) {
             player.die();
-            
-            SadFace sadFace = new SadFace();
-            getWorld().addObject(sadFace,300,200);
-            
-            MyWorld myWorld = (MyWorld) getWorld(); 
-            myWorld.getGSM().changeState(new GameOverState());
-            }       
         }
-        return;
-    
-    }
+    }   
     
     public void checkRemove(){
+        //Check remove is checked separately and lastly
+        //because this avoids calling world after removing itself from world
+        //which results in null pointer error (yikes!)
         if (getX() <= 0) {
             getWorld().removeObject(this);
         }

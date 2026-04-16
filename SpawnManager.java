@@ -26,6 +26,7 @@ public class SpawnManager
     }
     
     private void spawnObstacle(MyWorld world){
+        
         int y = Greenfoot.getRandomNumber(world.getHeight());
         world.addObject(new Roadroller(),world.getWidth(),y);
     }
