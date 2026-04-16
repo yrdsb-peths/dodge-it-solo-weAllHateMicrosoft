@@ -20,16 +20,7 @@ public class MyWorld extends World {
         gsm.pushState(new PlayingState());
 
         
-        //Sample: this is how you call some basic actors
-        Dio dio = new Dio();
-        addObject(dio,100,100);
         
-        Roadroller roadroller = new Roadroller();
-        addObject(roadroller,400,100);
-        
-
-        //Sample: this is how you call a banner
-        //addObject(new Banner(BossConfig.DIO), 1120, 200);
     }
     
     /*
@@ -38,7 +29,7 @@ public class MyWorld extends World {
      * different game states and pausing. 
      * 
      * So actors do not get their movement logic called 60 times a second as in act,
-     * but get controlled by our own update method, depending on the game state. 
+     * but get controlled by our own update method, depending on the game state.
      */
     public void act(){
         //All logic is delegated to the state machine,
