@@ -3,15 +3,15 @@ import greenfoot.*;
 public class Train extends Obstacles {
     private int state = 0; // 0: Waiting/Shaking, 1: Rushing
     private int waitTimer = 65; // Slightly longer than the PathWarning
-    private int speed = 25; // Massive speed
+    private int speed;
     
-    public Train() {
+    public Train(int speed) {
         
         GreenfootImage img = new GreenfootImage("obstacles/ambulence.png");
         setImage(img);
         getImage().scale(130,130);
         
-        
+        this.speed = speed;
         /*
         // DRAW THE CAR (No assets needed!)
         GreenfootImage img = new GreenfootImage(120, 40);
