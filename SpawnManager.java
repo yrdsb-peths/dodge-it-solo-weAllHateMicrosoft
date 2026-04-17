@@ -12,7 +12,7 @@ public class SpawnManager
     private int minSpawnRate = 10;//Spawning 6 road rollers is very manageable with time stop and a small hitbox.
     private int spawnRate = defaultSpawnRate; //Spanws every 60 frame
     
-    private int levelUpTime = 20;//Decrease spawn rate by 1 every 20 frames/ seconds
+    private int levelUpTime = 60;//Decrease spawn rate by 1 every 60 frames/ 1 second
     private int mobCount;
     private int difficultyTimer = 0;
     private boolean scorelessObstacle = false;
