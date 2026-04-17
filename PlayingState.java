@@ -37,7 +37,7 @@ public class PlayingState implements GameState
         //Handle normal game logic, like spawning obstacles, movement logics etc.
         
         //Sample of swithicng state: click "p" to pause. But we can also use a button
-        if("p".equals(Greenfoot.getKey())){
+        if("w".equals(Greenfoot.getKey())){
             world.getGSM().pushState(new PausedState());
         }
         spawnManager.update(world);
