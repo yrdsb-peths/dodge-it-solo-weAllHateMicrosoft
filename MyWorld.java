@@ -1,25 +1,56 @@
 import greenfoot.*;
 
 public class MyWorld extends World {
+    private GameStateManager gsm;
+    
+    public PlayingState playingState; 
+    //Game state manager is a class we defined to manage game states
+    //Game states are stored as classes, with the "blueprint" (interface) GameState, 
+    //which requires:
+    //an enter method, an update method, and an exit method
     
     public MyWorld() {
+        //Initiate a world (arguments: width, height, idk, bound)
+        //False means things are not limited by the boundary and can go through it
+        //This is helpful as we do not want a limiting boundar
         super(600, 400, 1,false);
+        //Initiate a game state manager, pasing this world (MyWorld) as the argument
+        gsm = new GameStateManager(this);//gsm stands for game state manager.
         
-        Hero hero = new Hero();
-        addObject(hero,100,100);
+        //Start the game in the playing state
+        //Remember, pushState adds the state on top of the stack,and enters that state
+        playingState = new PlayingState();
+        gsm.pushState(new MenuState());
+        //Initilaise the audio manager to load sounds into RAM
+        AudioManager.init();
         
-        Roadroller roadroller = new Roadroller();
-        addObject(roadroller,400,100);
         
-        GreenfootImage dioImg = new GreenfootImage("dio.png");
-        dioImg.scale(90,150);
-        GreenfootImage dioLabel = new GreenfootImage("dio_label.png");
-        dioLabel.scale(300,100);
-        Banner.SpriteOverlay[] mySprites = new Banner.SpriteOverlay[2];
-        mySprites[0] = new Banner.SpriteOverlay(dioImg, -200, -30);
-        mySprites[1] = new Banner.SpriteOverlay(dioLabel, 0, 100);
-        
-        addObject(new Banner(mySprites), 1120, 200);
+    }
+    
+    /*
+     * Main function running the game.
+     * We "replaced" the "act" method of greenfoot with our own update method to handle 
+     * different game states and pausing. 
+     * 
+     * So actors do not get their movement logic called 60 times a second as in act,
+     * but get controlled by our own update method, depending on the game state.
+     */
+    public void act(){
+        //All logic is delegated to the state machine,
+        //which delegates the taskto the specific state classes
+        gsm.update();
+    }
+    
+    /*
+     * Getter method to get the game state manager.
+     */
+    public GameStateManager getGSM(){
+        return gsm;
+    }
+    
+    //Getter method for spawn manager
+    public SpawnManager getSpawnManager() {
+        return playingState.getSpawnManager();
     }
     
 }

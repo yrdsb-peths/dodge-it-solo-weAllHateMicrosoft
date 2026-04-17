@@ -6,14 +6,23 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
  * @author (your name) 
  * @version (a version number or a date)
  */
-public class Roadroller extends Actor
+public class Roadroller extends Obstacles
 {
+    private int scoreAdded = 1;
     /**
      * Act - do whatever the Roadroller wants to do. This method is called whenever
      * the 'Act' or 'Run' button gets pressed in the environment.
      */
     private boolean faceLeft = false;
     private boolean resized = false;
+    
+    private MyWorld world;
+    
+    //Can customise roadroller so that it doesnt give any score
+    public Roadroller(int scoreAdded) {
+        this(); // Calls the original Roadroller() constructor first
+        this.scoreAdded = scoreAdded;
+    }
     public Roadroller(){
         //Resizing and orienting the image
         if(!faceLeft){
@@ -21,27 +30,39 @@ public class Roadroller extends Actor
             faceLeft = true;
         }
         getImage().scale(80,80);
-    }
-    public void act(){
-        move(-6);
-        if(getX()<=0){
-            resetRoadroller();
-        }
         
-        if(isTouching(Hero.class)){
-            SadFace sadFace = new SadFace();
-            getWorld().addObject(sadFace,300,200);
-            getWorld().removeObject(this);
-        }
+        speed = 6;
     }
     
-    public void resetRoadroller(){
-        int num = Greenfoot.getRandomNumber(2);
-        if(num == 1){
-            setLocation(600,100);
+    public void movementLogic(){
+        //Negative speed means moving from right to left
+        move(-speed);
+    }
+    
+    public void collisionLogic(){
+        //I'm really afraid of that null pointer error so this is a safety check.
+        if (getWorld() == null) return; 
+
+        // Get the player directly (no need to use isTouching first, this is faster)
+        Player player = (Player) getOneIntersectingObject(Player.class);
+        if (player != null && !player.isDead()) {
+            if (player.checkCustomHitbox(this, 0.6)) {
+                player.die();
+            }
         }
-        else{
-            setLocation(600,300);
+    }   
+    
+    public void checkRemove(){
+        //Check remove is checked separately and lastly
+        //because this avoids calling world after removing itself from world
+        //which results in null pointer error (yikes!)
+        if (getX() <= 0) {
+            //When it reaches the end, add score
+            ScoreManager.addScore(scoreAdded);
+            
+            getWorld().removeObject(this);
+            
         }
+        return;
     }
 }

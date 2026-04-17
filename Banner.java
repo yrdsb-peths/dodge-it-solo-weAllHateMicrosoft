@@ -23,14 +23,34 @@ public class Banner extends Actor{
     private GreenfootImage baseImage;
     //Control the speed
     private double speed = -12.0;
+    //Control play sound so that only once is played
+    private boolean playedSound = false;
+    //Boss configurations
+    private BossConfig config;
     //a private class to store overlay items on the banner (like figure or text)
+    
+    public Banner(BossConfig config){
+        this.config = config;
+        
+        baseImage = new GreenfootImage(810,150);
+        baseImage.setColor(config.bgColor);
+        baseImage.fill();
+        
+        for (SpriteOverlay s: config.overlays){
+            sprites.add(s);
+        }
+        
+        render(150);
+    }
+    
     public static class SpriteOverlay{
         GreenfootImage image;
         int offsetX;
         int offsetY;
         
-        public SpriteOverlay(GreenfootImage img, int x, int y){
-            this.image = img;
+        public SpriteOverlay(String fileName, int w, int h,int x,int y){
+            this.image = new GreenfootImage(fileName);
+            this.image.scale(w,h);
             this.offsetX = x;
             this.offsetY = y;
         }
@@ -38,47 +58,35 @@ public class Banner extends Actor{
     //Make an arraylist of overlay items as they may be mutilples of them
     private List<SpriteOverlay> sprites = new ArrayList<>();
     
-    public Banner(SpriteOverlay[] inputData){
-        //Currently, the image is a black rectangle
-        baseImage = new GreenfootImage(1010,150);
-        baseImage.setColor(Color.RED);
-        baseImage.fill();
-        
-        for(SpriteOverlay s: inputData){
-            sprites.add(s);
-        }
-        
-        render(150);
-        
-        /*
-         *   setImage(new GreenfootImage(baseImage));
-         *   //We keep a base image so that distorting image wont result in loss of info
-         *   GreenfootImage img = new GreenfootImage(baseImage);
-         *   setImage(img);
-         */
-    }
-    
     private void render (int currentHeight){
+        render(currentHeight,255);
+    }
+    private void render (int currentHeight,int alpha){
         //Set base image height
         GreenfootImage canvas = new GreenfootImage(1000,400);
-        GreenfootImage bg = new GreenfootImage(baseImage);
-        bg.scale(900,Math.max(1,currentHeight));
+        //trying transparency
+        canvas.setColor(new Color(0,0,0,0));
+        canvas.fill();
         
-        canvas.drawImage(bg, (canvas.getWidth() - bg.getWidth())/2, (canvas.getHeight() - bg.getHeight())/2);
-        //Set sprites
-        for(SpriteOverlay s: sprites){
-            int centerX = canvas.getWidth()/2;
-            int centerY = canvas.getHeight()/2;
-            
-            int drawX = centerX - (s.image.getWidth()/2) + s.offsetX;
-            int drawY = centerY - (s.image.getWidth()/2) + s.offsetY;
-            
+        //Set background
+        Color c = config.bgColor;
+        int bgH = Math.max(1, currentHeight);
+        int bgW = 900;
+        int bgX = (canvas.getWidth() - bgW) / 2;
+        int bgY = (canvas.getHeight() - bgH) / 2;
+        canvas.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha));
+        canvas.fillRect(bgX, bgY, bgW, bgH);
+        // Set sprite
+        for (SpriteOverlay s : sprites) {
+            int drawX = canvas.getWidth()/2 - s.image.getWidth()/2 + s.offsetX;
+            int drawY = canvas.getHeight()/2 - s.image.getHeight()/2 + s.offsetY;
             canvas.drawImage(s.image, drawX, drawY);
         }
-        
+
         setImage(canvas);
     }
     public void act(){
+
         if(state ==0){
             slideIn();
         }
@@ -90,11 +98,14 @@ public class Banner extends Actor{
         }
     }
     private void slideIn(){
+        if (!playedSound){
+            playRandomSound();
+            playedSound = true;
+        }
         int dist = 400-getX();
         if(Math.abs(dist)<=4){
             setLocation(400,getY());
             state = 1;
-            playRandomSound();
         }
         else{
             int step = (int)(dist*0.12);
@@ -119,25 +130,27 @@ public class Banner extends Actor{
         double ratio = d/200.0;
         int newHeight = 30 + (int)(120*ratio);
         render(newHeight);
+        if(speed >= 0){
+            state = 2;
+            speed = 0;
+        }
         
     }
     private void slideOut(){
         //Increasing speed in the positive direction
-        speed += 1.0;
+        speed += 1;
         setLocation(getX()+(int)speed,getY());
         //Resize the image
         int d = getX() -200;
-        double ratio = d/1000.0;
-        int newHeight = 30+(int)(120*Math.pow(ratio,0.5));
-        render(newHeight);
-        int alpha = (int)(255 * (1.0 - ratio));
+        double ratio = d/200.0;
+        int newHeight = 30 + (int)(120*ratio);
+        int alpha = (int)(255 * (1.0 - ratio/4));
         if (alpha < 0) alpha = 0;
         if (alpha > 255) alpha = 255;
-        getImage().setTransparency(alpha);
+        render(newHeight,alpha);
     }
     public void playRandomSound() {
-        String[] sounds = {"wry.mp3", "muda_muda.mp3", "muda_barrage.mp3","kono_dio_da.mp3","stand_power.mp3"};
-        int index = Greenfoot.getRandomNumber(sounds.length); 
-        Greenfoot.playSound(sounds[index]);
+    String soundsKey = config.soundsKey;
+    AudioManager.playPool(soundsKey);
     }
 }
