@@ -150,11 +150,7 @@ public class Banner extends Actor{
         render(newHeight,alpha);
     }
     public void playRandomSound() {
-    String[] sounds = config.sounds;
-    if(sounds != null && sounds.length > 0){
-        int index = Greenfoot.getRandomNumber(sounds.length);
- 
-        Greenfoot.playSound(sounds[index]); 
-    }
+    String soundsKey = config.soundsKey;
+    AudioManager.playPool(soundsKey);
     }
 }

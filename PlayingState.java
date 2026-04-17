@@ -7,7 +7,10 @@ import greenfoot.*;
 public class PlayingState implements GameState
 {
     //A spawn manager will handle all spawning problems
-    private SpawnManager spawnManager;
+    public SpawnManager spawnManager;
+    
+    //UI Components
+    private UIText scoreDisplay;
     public void enter(MyWorld world){
         //The normal game running: spawns players, reset timers, play music etc.
         
@@ -22,7 +25,8 @@ public class PlayingState implements GameState
         
         spawnManager = new SpawnManager();
 
-
+        scoreDisplay = new UIText("SCORE: 0", 30, Color.BLACK);
+        world.addObject(scoreDisplay, 100, 30);
         //Sample: this is how you call a banner
         //addObject(new Banner(BossConfig.DIO), 1120, 200);
     }
@@ -35,10 +39,18 @@ public class PlayingState implements GameState
             world.getGSM().pushState(new PausedState());
         }
         spawnManager.update(world);
+        //Update score display
+        scoreDisplay.setText("SCORE: " + ScoreManager.getScore());
+
     }
     
     public void exit(MyWorld world){
         //Clean things up as we leave this state.
         world.removeObjects(world.getObjects(null));
+    }
+    
+    //Getter method for spawn manager
+    public SpawnManager getSpawnManager() {
+    return spawnManager;
     }
 }

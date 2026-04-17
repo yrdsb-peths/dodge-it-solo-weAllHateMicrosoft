@@ -2,6 +2,8 @@ import greenfoot.*;
 
 public class MyWorld extends World {
     private GameStateManager gsm;
+    
+    private PlayingState playingState; 
     //Game state manager is a class we defined to manage game states
     //Game states are stored as classes, with the "blueprint" (interface) GameState, 
     //which requires:
@@ -17,8 +19,10 @@ public class MyWorld extends World {
         
         //Start the game in the playing state
         //Remember, pushState adds the state on top of the stack,and enters that state
-        gsm.pushState(new PlayingState());
-
+        playingState = new PlayingState();
+        gsm.pushState(playingState);
+        //Initilaise the audio manager to load sounds into RAM
+        AudioManager.init();
         
         
     }
@@ -42,6 +46,11 @@ public class MyWorld extends World {
      */
     public GameStateManager getGSM(){
         return gsm;
+    }
+    
+    //Getter method for spawn manager
+    public SpawnManager getSpawnManager() {
+        return playingState.getSpawnManager();
     }
     
 }

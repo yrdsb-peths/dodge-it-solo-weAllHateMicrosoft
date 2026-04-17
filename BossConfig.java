@@ -10,7 +10,7 @@ public enum BossConfig
 {
    DIO(
         Color.BLACK, 
-        new String[]{"wry.mp3", "muda_muda.mp3", "kono_dio_da.mp3","world.mp3"}, 
+        "dioBattleCry", 
         new Banner.SpriteOverlay[] {
             // file name, width, heigh, x offset, y offset
             new Banner.SpriteOverlay("dio_full.png", 150, 150, -200, 0),
@@ -19,12 +19,12 @@ public enum BossConfig
     );
     
     public final Color bgColor;
-    public final String[] sounds;
+    public final String soundsKey;
     public final Banner.SpriteOverlay[] overlays;
 
-    private BossConfig(Color color, String[] sounds, Banner.SpriteOverlay[] overlays) {
+    private BossConfig(Color color, String soundsKey, Banner.SpriteOverlay[] overlays) {
         this.bgColor = color;
-        this.sounds = sounds;
+        this.soundsKey = soundsKey;
         this.overlays = overlays;
     }
 }

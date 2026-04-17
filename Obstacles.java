@@ -21,6 +21,7 @@ public abstract class Obstacles extends Actor
         
         movementLogic();
         collisionLogic();
+        checkRemove();
         
     }
     

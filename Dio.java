@@ -13,7 +13,9 @@ public class Dio extends Player
     private Animator currentAnimator;
     private String currentAnimName = "";
 
-
+    
+    //A 5 second, noo looping timer
+    private GameTimer deathTimer = new GameTimer(9.0, false);
     /*
      * Contructus a DIO by setting up animations.
      * Currently default animation is Dash as a placeholder
@@ -23,10 +25,10 @@ public class Dio extends Player
         String[] animNames = {"Idle", "Wry", "Dash", "High", "Intro","Scratch", "Roll","Lose", "WalkLeft", "WalkRight"};
         for (String name : animNames) {
             // Parameters: Folder name
-            animations.put(name, new Animator(name));
+            animations.put(name, new Animator("Dio", name));
         }
         //Some animations use custom speeds: e.g. scratch is faster
-        animations.put("Scratch", new Animator("Scratch",3));
+        animations.put("Scratch", new Animator("Dio","Scratch",3));
 
         // 2. Set the starting animation
         setAnimation("Dash");
@@ -48,6 +50,7 @@ public class Dio extends Player
      * Overloaded version that accepts a speed
      */
     public void setAnimation(String name, int speed) {
+    if (getWorld() == null) return; 
     if (animations.containsKey(name)) {
         animations.get(name).setSpeed(speed); // Update the speed
         setAnimation(name);                   // Call the original logic to switch
@@ -58,36 +61,59 @@ public class Dio extends Player
      * Sets actor image as the correct frame. 
      */
     protected void animationLogic(){
+        if (getWorld() == null) return; 
         setImage(currentAnimator.getCurrentFrame());
     }
     /*
      * Current, trashy movement logic that should be worked on
      */
     protected void movementLogic(){
-
-        if(Greenfoot.mouseClicked(null)){
-            playRandomAnimation();
+        if (getWorld() == null) return; 
+        if (isDead) {
+        MyWorld world = (MyWorld) getWorld();
+        
+        // 1. You MUST update the timer every frame so it counts!
+        deathTimer.update(world); 
+        
+        // 2. Check if the time is up
+        if (deathTimer.isExpired()) {
+            world.getGSM().changeState(new GameOverState());
+        }
+        } 
+        
+        else{
+            if(Greenfoot.mouseClicked(null)){
+                playRandomAnimation();
+            }
+            
+            if (Greenfoot.isKeyDown("up")) 
+            {
+                setLocation(getX(), getY() - 5);
+            }
+            
+            if (Greenfoot.isKeyDown("down")) 
+            {
+                setLocation(getX(), getY() + 5);
+            }
         }
         
-        if (Greenfoot.isKeyDown("up")) 
-        {
-            setLocation(getX(), getY() - 5);
-        }
-        
-        if (Greenfoot.isKeyDown("down")) 
-        {
-            setLocation(getX(), getY() + 5);
-        }
         
     }
     //Die method is public because anyone can tell player to die
     public void die(){
+        if (isDead) return;
         isDead = true;
         SadFace sadFace = new SadFace();
         getWorld().addObject(sadFace,300,200);
         setAnimation("Lose");
-        MyWorld myWorld = (MyWorld) getWorld(); 
-        myWorld.getGSM().changeState(new GameOverState());
+        AudioManager.playPool("dioLostVoices");
+        //Summon many road rollers for cool effect
+        MyWorld world = (MyWorld) getWorld();
+        world.getSpawnManager().deathSpawnAnim(world);
+        //Start counting down
+        //This buys time for voice and animation
+        //After timer, the state changes and world resets
+        deathTimer.start();
     }
     
     /*
@@ -101,16 +127,19 @@ public class Dio extends Player
     }
     
     /*
-     * Dio's method overrides that ins player:
+     * Dio's method overrides the method in player:
      * normally player can't do anything
-     * but dio can move normally and play a cool banner
+     * but dio can move normally and display a cool banner
+     * bannerSpawned makes sure banner only gets played once, 
+     * and it gets set back to true in player update method.
      */
     protected void onPauseUpdate(MyWorld world) {
-    if (!bannerSpawned) {
-        world.addObject(new Banner(BossConfig.DIO), 1120, 200);
-        bannerSpawned = true;
+        if (!bannerSpawned) {
+            world.addObject(new Banner(BossConfig.DIO), 1120, 200);
+            bannerSpawned = true;
+            setAnimation("Wry");
+        }
+        movementLogic(); // Dio moves during pause!
+        animationLogic();
     }
-    movementLogic(); // Dio moves during pause!
-    animationLogic();
-}
 }
