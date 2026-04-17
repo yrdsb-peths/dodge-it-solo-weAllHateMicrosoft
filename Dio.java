@@ -15,7 +15,7 @@ public class Dio extends Player
 
     
     //A 2 second timer before removing object from gae after dying
-    private GameTimer deathTimer = new GameTimer(2.0, false);
+    private GameTimer deathTimer = new GameTimer(4.0, false);
     //Play some animation for 3 seconds only
     private GameTimer highTimer = new GameTimer(3.0, false);
     //A timer that allows Dio to play some temporary animation.
