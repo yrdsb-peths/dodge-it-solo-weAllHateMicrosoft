@@ -38,7 +38,7 @@ public class AudioManager {
         String[] loseFiles = {"dio_voiceline/dio_lost.mp3", "dio_voiceline/dio_lost2.mp3"};
         loadVoicePool("dioLostVoices", loseFiles, 80);
         
-        String[] dioBattleCry = {"dio_voiceline/wry.mp3", "dio_voiceline/muda_muda.mp3", "dio_voiceline/kono_dio_da.mp3","dio_voiceline/Voicy_Timestop DiegoBrando.mp3"};
+        String[] dioBattleCry = {"dio_voiceline/wry.mp3","dio_voiceline/high.mp3", "dio_voiceline/muda_muda.mp3","dio_voiceline/Voicy_Timestop DiegoBrando.mp3"};
         loadVoicePool("dioBattleCry", dioBattleCry,80);
     }
 

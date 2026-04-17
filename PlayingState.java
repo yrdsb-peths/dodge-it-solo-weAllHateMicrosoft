@@ -14,6 +14,7 @@ public class PlayingState implements GameState
     public void enter(MyWorld world){
         //The normal game running: spawns players, reset timers, play music etc.
         
+        ScoreManager.reset(); //Reset score
         //Sample: this is how you call some basic actors
         
         Dio dio = new Dio();

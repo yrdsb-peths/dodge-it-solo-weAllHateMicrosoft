@@ -15,7 +15,7 @@ public class Dio extends Player
 
     
     //A 5 second, noo looping timer
-    private GameTimer deathTimer = new GameTimer(9.0, false);
+    private GameTimer deathTimer = new GameTimer(2.0, false);
     /*
      * Contructus a DIO by setting up animations.
      * Currently default animation is Dash as a placeholder

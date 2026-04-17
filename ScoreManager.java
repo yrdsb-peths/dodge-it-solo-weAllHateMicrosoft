@@ -21,4 +21,11 @@ public class ScoreManager {
     public static int getHighScore() {
         return highScore;
     }
+    
+    public static void updateHighScore() {
+        if (score > highScore) {
+            highScore = score;
+        }
+    }
+
 }
