@@ -9,12 +9,12 @@ public class MenuState implements GameState {
     public void enter(MyWorld world) {
         int middle = world.getWidth()/2;
         // 1. Title
-        addUI(world, new UIText("D(I)ODGE IT", 50, Color.RED),middle, 100);
+        addUI(world, new UIText("DIO-DGE IT", 50, Color.BLACK),middle, 100);
 
         // 2. The Guide (Instruction block)
-        addUI(world, new UIText("--- HOW TO PLAY ---", 25, Color.BLACK),middle, 220);
-        addUI(world, new UIText("ARROWS: Move DIO", 20, Color.LIGHT_GRAY),middle, 260);
-        addUI(world, new UIText("P: Pause", 20, Color.LIGHT_GRAY),middle, 310);
+        addUI(world, new UIText("--- HOW TO PLAY ---", 25, Color.LIGHT_GRAY),middle, 220);
+        addUI(world, new UIText("ARROWS: Move DIO", 20, Color.RED),middle, 260);
+        addUI(world, new UIText("W: Pause", 30, Color.RED),middle, 310);
         
         // 3. The Objective
         addUI(world, new UIText("Dodge the Road Rollers to survive!", 22, Color.ORANGE), middle, 350);

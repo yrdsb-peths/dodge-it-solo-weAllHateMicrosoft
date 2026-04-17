@@ -7,7 +7,7 @@ import greenfoot.*;
 public class PlayingState implements GameState
 {
     //A spawn manager will handle all spawning problems
-    public SpawnManager spawnManager;
+    private SpawnManager spawnManager;
     
     //UI Components
     private UIText scoreDisplay;
@@ -20,10 +20,6 @@ public class PlayingState implements GameState
         
         Dio dio = new Dio();
         world.addObject(dio,80,80);
-
-        Roadroller roadroller = new Roadroller();
-        int y = Greenfoot.getRandomNumber(world.getHeight());
-        world.addObject(roadroller,400,y);
         
         spawnManager = new SpawnManager();
 
@@ -37,7 +33,7 @@ public class PlayingState implements GameState
         //Handle normal game logic, like spawning obstacles, movement logics etc.
         
         //Sample of swithicng state: click "p" to pause. But we can also use a button
-        if("p".equals(Greenfoot.getKey())){
+        if("w".equals(Greenfoot.getKey())){
             world.getGSM().pushState(new PausedState());
         }
         spawnManager.update(world);

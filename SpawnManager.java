@@ -9,10 +9,10 @@ public class SpawnManager
 {
     private int spawnTimer = 0;
     private final int defaultSpawnRate = 60;
-    private int minSpawnRate = 10;//Spawning 6 road rollers is very manageable with time stop and a small hitbox.
+    private int minSpawnRate = 6;//Spawning 10 road rollers is very manageable with time stop and a small hitbox.
     private int spawnRate = defaultSpawnRate; //Spanws every 60 frame
     
-    private int levelUpTime = 20;//Decrease spawn rate by 1 every 20 frames/ seconds
+    private int levelUpTime = 40;//Decrease spawn rate by 1 every 40 frames/ 0.6 second
     private int mobCount;
     private int difficultyTimer = 0;
     private boolean scorelessObstacle = false;
@@ -61,10 +61,5 @@ public class SpawnManager
         int y = Greenfoot.getRandomNumber(world.getHeight());
         world.addObject(new Roadroller(score),world.getWidth(),y);
     }
-    
-    //Spawn many road rollers for cool effect
-    public void deathSpawnAnim(MyWorld world){
-        spawnRate = 2;
-        scorelessObstacle = true;
-    }
+
 }

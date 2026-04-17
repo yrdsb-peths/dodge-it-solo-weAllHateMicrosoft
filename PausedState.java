@@ -24,7 +24,7 @@ public class PausedState implements GameState
         
         //Sample of swithicng state: use "p" to unpause, but we can also use a button
         
-        if("p".equals(Greenfoot.getKey())){
+        if("w".equals(Greenfoot.getKey())){
             //Remove the pause state, resume to normal/whatever state previosly running.
             world.getGSM().popState();
             

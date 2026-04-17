@@ -29,7 +29,7 @@ public class AudioManager {
     //Loads the files from hard drive into RAM permanently
     public static void init() {
         // Pre-load background music
-        loadSound("dio_bgm","eye_of_heaven_dio_bgm.mp3", 10);
+        loadSound("dio_bgm","eye_of_heaven_dio_bgm.mp3", 20);
         
         
         loadSound("lost_bgm","brawl_stars_lost_bgm.mp3", 15);
@@ -40,10 +40,10 @@ public class AudioManager {
         
         // Pre-load voice pools
         String[] loseFiles = {"dio_voiceline/dio_lost.mp3", "dio_voiceline/dio_lost2.mp3"};
-        loadVoicePool("dioLostVoices", loseFiles, 15);
+        loadVoicePool("dioLostVoices", loseFiles, 20);
         
         String[] dioBattleCry = {"dio_voiceline/wry.mp3","dio_voiceline/high.mp3", "dio_voiceline/muda_muda.mp3","dio_voiceline/Voicy_Timestop DiegoBrando.mp3"};
-        loadVoicePool("dioBattleCry", dioBattleCry,20);
+        loadVoicePool("dioBattleCry", dioBattleCry,40);
     }
 
     //Helper method to load single sounds

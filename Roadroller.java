@@ -8,7 +8,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
  */
 public class Roadroller extends Obstacles
 {
-    private int scoreAdded = 1;
+    private int scoreToAdd = 1;
     /**
      * Act - do whatever the Roadroller wants to do. This method is called whenever
      * the 'Act' or 'Run' button gets pressed in the environment.
@@ -16,21 +16,16 @@ public class Roadroller extends Obstacles
     private boolean faceLeft = false;
     private boolean resized = false;
     
-    private MyWorld world;
-    
     //Can customise roadroller so that it doesnt give any score
-    public Roadroller(int scoreAdded) {
+    public Roadroller(int scoreToAdd) {
         this(); // Calls the original Roadroller() constructor first
-        this.scoreAdded = scoreAdded;
+        this.scoreToAdd = scoreToAdd;
     }
     public Roadroller(){
         //Resizing and orienting the image
-        if(!faceLeft){
-            getImage().mirrorHorizontally();
-            faceLeft = true;
-        }
+        getImage().mirrorHorizontally();
         getImage().scale(80,80);
-        
+        //Moves at 6 pixels per frame
         speed = 6;
     }
     
@@ -57,8 +52,14 @@ public class Roadroller extends Obstacles
         //because this avoids calling world after removing itself from world
         //which results in null pointer error (yikes!)
         if (getX() <= 0) {
-            //When it reaches the end, add score
-            ScoreManager.addScore(scoreAdded);
+            //When it reaches the end, AND if player is alive, add score. 
+            java.util.List<Player> players = getWorld().getObjects(Player.class);
+            if (!players.isEmpty()) {
+                Player player = players.get(0);
+                if (!player.isDead()) {
+                    ScoreManager.addScore(scoreToAdd);
+                }
+            }
             
             getWorld().removeObject(this);
             
