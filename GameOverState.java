@@ -11,7 +11,7 @@ public class GameOverState implements GameState {
         ScoreManager.updateHighScore();
         int finalScore = ScoreManager.getScore();
         int bestScore = ScoreManager.getHighScore();
-
+        
         // 2. Create UI Elements
         // "RETIRED" is the classic JoJo defeat text
         UIText title = new UIText("RETIRED", 80, Color.RED);

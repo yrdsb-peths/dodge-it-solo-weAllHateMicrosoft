@@ -36,10 +36,10 @@ public class AudioManager {
         
         // Pre-load voice pools
         String[] loseFiles = {"dio_voiceline/dio_lost.mp3", "dio_voiceline/dio_lost2.mp3"};
-        loadVoicePool("dioLostVoices", loseFiles, 80);
+        loadVoicePool("dioLostVoices", loseFiles, 20);
         
         String[] dioBattleCry = {"dio_voiceline/wry.mp3","dio_voiceline/high.mp3", "dio_voiceline/muda_muda.mp3","dio_voiceline/Voicy_Timestop DiegoBrando.mp3"};
-        loadVoicePool("dioBattleCry", dioBattleCry,80);
+        loadVoicePool("dioBattleCry", dioBattleCry,20);
     }
 
     //Helper method to load single sounds

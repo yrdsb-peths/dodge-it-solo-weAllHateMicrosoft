@@ -14,8 +14,14 @@ public class Dio extends Player
     private String currentAnimName = "";
 
     
-    //A 5 second, noo looping timer
+    //A 2 second timer before removing object from gae after dying
     private GameTimer deathTimer = new GameTimer(2.0, false);
+    //Play some animation for 3 seconds only
+    private GameTimer highTimer = new GameTimer(3.0, false);
+    //A timer that allows Dio to play some temporary animation.
+    //Such as death anim, or high animiation
+    private GameTimer activeTimer = null;
+    private String defaultAnim = "Dash";
     /*
      * Contructus a DIO by setting up animations.
      * Currently default animation is Dash as a placeholder
@@ -57,12 +63,27 @@ public class Dio extends Player
     }
     }
     
+    public void playTimedAnimation(String name, GameTimer timer){
+        setAnimation(name);
+        this.activeTimer = timer;
+        this.activeTimer.start();
+    }
+    
     /*
      * Sets actor image as the correct frame. 
      */
     protected void animationLogic(){
         if (getWorld() == null) return; 
         setImage(currentAnimator.getCurrentFrame());
+        
+        //Check if we are in a timed, temporary sequence
+        if(activeTimer != null){
+            activeTimer.update((MyWorld)getWorld());
+            if(activeTimer.isExpired()){
+                activeTimer = null;
+                setAnimation(defaultAnim);
+            }
+        }
     }
     /*
      * Current, trashy movement logic that should be worked on
@@ -76,9 +97,9 @@ public class Dio extends Player
         deathTimer.update(world); 
         
         // 2. Check if the time is up
-        if (deathTimer.isExpired()) {
-            world.getGSM().changeState(new GameOverState());
-        }
+            if (deathTimer.isExpired()) {
+                world.getGSM().changeState(new GameOverState());
+            }
         } 
         
         else{
@@ -95,8 +116,13 @@ public class Dio extends Player
             {
                 setLocation(getX(), getY() + 5);
             }
+            if (getY() < 0) setLocation(getX(), 0);
+            if (getY() > getWorld().getHeight() - 1) setLocation(getX(), getWorld().getHeight() - 1);
+            
+            // Prevents moving off left/right (if i add horizontal movement later)
+            if (getX() < 0) setLocation(0, getY());
+            if (getX() > getWorld().getWidth() - 1) setLocation(getWorld().getWidth() - 1, getY());
         }
-        
         
     }
     //Die method is public because anyone can tell player to die
@@ -118,6 +144,7 @@ public class Dio extends Player
     
     /*
      * A funny method that... calls a random animation (obviously)
+     * However, it is buggy so im not using it. 
      */
      private void playRandomAnimation(){
         Object[] keys = animations.keySet().toArray();
@@ -137,7 +164,8 @@ public class Dio extends Player
         if (!bannerSpawned) {
             world.addObject(new Banner(BossConfig.DIO), 1120, 200);
             bannerSpawned = true;
-            setAnimation("Wry");
+            playTimedAnimation("Wry", highTimer);
+            highTimer.start();
         }
         movementLogic(); // Dio moves during pause!
         animationLogic();
