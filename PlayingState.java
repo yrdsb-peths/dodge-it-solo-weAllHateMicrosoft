@@ -16,6 +16,9 @@ public class PlayingState implements GameState
         
         ScoreManager.reset(); //Reset score
         AudioManager.playLoop("dio_bgm"); //Play bgm
+        
+        world.addObject(new ScrollingRoad(), 300, 200);//Add the scrolling road two times
+        world.addObject(new ScrollingRoad(), 900, 200);
         //Sample: this is how you call some basic actors
         
         Dio dio = new Dio();

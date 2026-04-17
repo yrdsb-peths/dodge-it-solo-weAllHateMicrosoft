@@ -34,6 +34,9 @@ public class AudioManager {
         
         loadSound("lost_bgm","brawl_stars_lost_bgm.mp3", 15);
         
+        loadSound("car_crash","car_crash.mp3", 50);
+        
+        
         
         // Example of a single sound 
         // loadSound("punch", "sounds/punch.mp3", 70);

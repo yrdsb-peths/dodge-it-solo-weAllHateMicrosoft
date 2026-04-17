@@ -12,7 +12,7 @@ public class Dio extends Player
     //The current animationor and action name it takes in
     private Animator currentAnimator;
     private String currentAnimName = "";
-
+    
     
     //A 2 second timer before removing object from gae after dying
     private GameTimer deathTimer = new GameTimer(4.0, false);
@@ -22,6 +22,11 @@ public class Dio extends Player
     //Such as death anim, or high animiation
     private GameTimer activeTimer = null;
     private String defaultAnim = "Dash";
+    
+    //Storing death location
+    private int dieX, dieY;
+    //Images are quite big so I'm scaling all of them by 0.8
+    private double dioScale = 0.8;
     /*
      * Contructus a DIO by setting up animations.
      * Currently default animation is Dash as a placeholder
@@ -31,10 +36,10 @@ public class Dio extends Player
         String[] animNames = {"Idle", "Wry", "Dash", "High", "Intro","Scratch", "Roll","Lose", "WalkLeft", "WalkRight"};
         for (String name : animNames) {
             // Parameters: Folder name
-            animations.put(name, new Animator("Dio", name));
+            animations.put(name, new Animator("Dio", name, dioScale));
         }
         //Some animations use custom speeds: e.g. scratch is faster
-        animations.put("Scratch", new Animator("Dio","Scratch",3));
+        animations.put("Scratch", new Animator("Dio","Scratch",3, dioScale));
 
         // 2. Set the starting animation
         setAnimation("Dash");
@@ -97,6 +102,9 @@ public class Dio extends Player
             // 1. You MUST update the timer every frame so it counts!
             deathTimer.update(world); 
             
+            if (!deathTimer.isExpired()) {
+                shake();
+            }
             // 2. Check if the time is up
             if (deathTimer.isExpired()) {
                 world.getGSM().changeState(new GameOverState());
@@ -135,7 +143,9 @@ public class Dio extends Player
         getWorld().addObject(sadFace,world.getWidth()/2, world.getHeight()/2);
         setAnimation("Lose");
         AudioManager.playPool("dioLostVoices");
-
+        //Set death location
+        dieX = getX();
+        dieY = getY();
         //Start counting down
         //This buys time for voice and animation
         //After timer, the state changes and world resets
@@ -183,5 +193,19 @@ public class Dio extends Player
         double hitboxRadius = ((getImage().getWidth() + getImage().getHeight()) / 4.0) * padding;
         
         return distance < hitboxRadius;
+    }
+    
+    private void shake (){
+        if (!deathTimer.isExpired()) {
+            int shakeX = Greenfoot.getRandomNumber(7) - 3; 
+            int shakeY = Greenfoot.getRandomNumber(7) - 3;
+                
+            // 2. ALWAYS add to the baseX/baseY, NOT the current getX()
+            setLocation(dieX + shakeX, dieY + shakeY);
+        } 
+        else {
+            // 3. Return to the exact center when finished
+            setLocation(dieX, dieY);
+        }
     }
 }
