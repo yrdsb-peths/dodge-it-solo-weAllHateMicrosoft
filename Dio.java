@@ -66,6 +66,7 @@ public class Dio extends Player
     public void playTimedAnimation(String name, GameTimer timer){
         setAnimation(name);
         this.activeTimer = timer;
+        this.activeTimer.reset();
         this.activeTimer.start();
     }
     
@@ -91,17 +92,17 @@ public class Dio extends Player
     protected void movementLogic(){
         if (getWorld() == null) return; 
         if (isDead) {
-        MyWorld world = (MyWorld) getWorld();
-        
-        // 1. You MUST update the timer every frame so it counts!
-        deathTimer.update(world); 
-        
-        // 2. Check if the time is up
+            MyWorld world = (MyWorld) getWorld();
+            
+            // 1. You MUST update the timer every frame so it counts!
+            deathTimer.update(world); 
+            
+            // 2. Check if the time is up
             if (deathTimer.isExpired()) {
                 world.getGSM().changeState(new GameOverState());
             }
         } 
-        
+            
         else{
             if(Greenfoot.mouseClicked(null)){
                 playRandomAnimation();
@@ -127,15 +128,14 @@ public class Dio extends Player
     }
     //Die method is public because anyone can tell player to die
     public void die(){
+        MyWorld world = (MyWorld) getWorld();
         if (isDead) return;
         isDead = true;
         SadFace sadFace = new SadFace();
-        getWorld().addObject(sadFace,300,200);
+        getWorld().addObject(sadFace,world.getWidth()/2, world.getHeight()/2);
         setAnimation("Lose");
         AudioManager.playPool("dioLostVoices");
-        //Summon many road rollers for cool effect
-        MyWorld world = (MyWorld) getWorld();
-        world.getSpawnManager().deathSpawnAnim(world);
+
         //Start counting down
         //This buys time for voice and animation
         //After timer, the state changes and world resets
@@ -165,7 +165,6 @@ public class Dio extends Player
             world.addObject(new Banner(BossConfig.DIO), 1120, 200);
             bannerSpawned = true;
             playTimedAnimation("Wry", highTimer);
-            highTimer.start();
         }
         movementLogic(); // Dio moves during pause!
         animationLogic();

@@ -7,7 +7,7 @@ import greenfoot.*;
 public class PlayingState implements GameState
 {
     //A spawn manager will handle all spawning problems
-    public SpawnManager spawnManager;
+    private SpawnManager spawnManager;
     
     //UI Components
     private UIText scoreDisplay;
@@ -20,10 +20,6 @@ public class PlayingState implements GameState
         
         Dio dio = new Dio();
         world.addObject(dio,80,80);
-
-        Roadroller roadroller = new Roadroller();
-        int y = Greenfoot.getRandomNumber(world.getHeight());
-        world.addObject(roadroller,400,y);
         
         spawnManager = new SpawnManager();
 

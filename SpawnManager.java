@@ -61,10 +61,5 @@ public class SpawnManager
         int y = Greenfoot.getRandomNumber(world.getHeight());
         world.addObject(new Roadroller(score),world.getWidth(),y);
     }
-    
-    //Spawn many road rollers for cool effect
-    public void deathSpawnAnim(MyWorld world){
-        spawnRate = 2;
-        scorelessObstacle = true;
-    }
+
 }

@@ -94,6 +94,7 @@ public class GameTimer {
     public double getSecondsRemaining() {
         return remainingFrames / 60.0;
     }
+    
     /*
      * Returns percentage of time passed.
      * 

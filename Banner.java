@@ -148,6 +148,9 @@ public class Banner extends Actor{
         if (alpha < 0) alpha = 0;
         if (alpha > 255) alpha = 255;
         render(newHeight,alpha);
+        if (getX() > getWorld().getWidth() + 600) {
+        getWorld().removeObject(this);
+        }   
     }
     public void playRandomSound() {
     String soundsKey = config.soundsKey;

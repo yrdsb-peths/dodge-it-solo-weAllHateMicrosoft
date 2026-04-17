@@ -1,0 +1,1533 @@
+
+==================================================
+FILE: ./MyWorld.java
+==================================================
+
+import greenfoot.*;
+
+public class MyWorld extends World {
+    private GameStateManager gsm;
+    
+    public PlayingState playingState; 
+    //Game state manager is a class we defined to manage game states
+    //Game states are stored as classes, with the "blueprint" (interface) GameState, 
+    //which requires:
+    //an enter method, an update method, and an exit method
+    
+    public MyWorld() {
+        //Initiate a world (arguments: width, height, idk, bound)
+        //False means things are not limited by the boundary and can go through it
+        //This is helpful as we do not want a limiting boundar
+        super(600, 400, 1,false);
+        //Initiate a game state manager, pasing this world (MyWorld) as the argument
+        gsm = new GameStateManager(this);//gsm stands for game state manager.
+        
+        //Start the game in the playing state
+        //Remember, pushState adds the state on top of the stack,and enters that state
+        playingState = new PlayingState();
+        gsm.pushState(new MenuState());
+        //Initilaise the audio manager to load sounds into RAM
+        AudioManager.init();
+        
+        
+    }
+    
+    /*
+     * Main function running the game.
+     * We "replaced" the "act" method of greenfoot with our own update method to handle 
+     * different game states and pausing. 
+     * 
+     * So actors do not get their movement logic called 60 times a second as in act,
+     * but get controlled by our own update method, depending on the game state.
+     */
+    public void act(){
+        //All logic is delegated to the state machine,
+        //which delegates the taskto the specific state classes
+        gsm.update();
+    }
+    
+    /*
+     * Getter method to get the game state manager.
+     */
+    public GameStateManager getGSM(){
+        return gsm;
+    }
+    
+    //Getter method for spawn manager
+    public SpawnManager getSpawnManager() {
+        return playingState.getSpawnManager();
+    }
+    
+}
+
+
+
+==================================================
+FILE: ./SadFace.java
+==================================================
+
+import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+
+/**
+ * Write a description of class SadFace here.
+ * 
+ * @author (your name) 
+ * @version (a version number or a date)
+ */
+public class SadFace extends Actor
+{
+    /**
+     * Act - do whatever the SadFace wants to do. This method is called whenever
+     * the 'Act' or 'Run' button gets pressed in the environment.
+     */
+    public void act()
+    {
+        // Add your action code here.
+    }
+}
+
+
+
+==================================================
+FILE: ./GameOverState.java
+==================================================
+
+import greenfoot.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class GameOverState implements GameState {
+    // We use a list to keep track of UI elements for easy cleanup
+    private List<Actor> uiElements = new ArrayList<>();
+
+    public void enter(MyWorld world) {
+        
+        AudioManager.playLoop("lost_bgm"); //Play bgm
+        // 1. Process Scores immediately
+        ScoreManager.updateHighScore();
+        int finalScore = ScoreManager.getScore();
+        int bestScore = ScoreManager.getHighScore();
+        
+        // 2. Create UI Elements
+        // "RETIRED" is the classic JoJo defeat text
+        UIText title = new UIText("RETIRED", 80, Color.RED);
+        UIText scoreTxt = new UIText("Final Score: " + finalScore, 30, Color.RED);
+        UIText bestTxt = new UIText("Best Survival: " + bestScore, 30, Color.RED);
+        UIText restartPrompt = new UIText("Press ENTER to Restart", 25, Color.BLACK);
+
+        // 3. Add to World and track them for cleanup
+        addUI(world, title, world.getWidth()/2, 150);
+        addUI(world, scoreTxt, world.getWidth()/2, 200);
+        addUI(world, bestTxt, world.getWidth()/2, 250);
+        addUI(world, restartPrompt, world.getWidth()/2, 300);
+        
+        // Professional Touch: Play the defeat sound via our Manager
+        // AudioManager.playVoice("dio_lost");
+    }
+
+    public void update(MyWorld world) {
+        // Check for restart
+        if ("enter".equals(Greenfoot.getKey())) {
+            // changeState deletes this state and starts a fresh PlayingState
+            world.getGSM().changeState(new PlayingState());
+        }
+    }
+
+    public void exit(MyWorld world) {
+        // Remove all the UIs
+        //Potentially clean up anythign if needed
+        AudioManager.stop("lost_bgm"); //Play bgm
+        world.removeObjects(uiElements);
+    }
+
+    /**
+     * Helper to add UI and keep track of it automatically
+     */
+    private void addUI(MyWorld world, Actor a, int x, int y) {
+        world.addObject(a, x, y);
+        uiElements.add(a);
+    }
+}
+
+
+==================================================
+FILE: ./Obstacles.java
+==================================================
+
+import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+
+/**
+ * Write a description of class Obstacles here.
+ * 
+ * @author (your name) 
+ * @version (a version number or a date)
+ */
+public abstract class Obstacles extends Actor
+{
+    protected int speed;
+    
+    /**
+     * Act - do whatever the Obstacles wants to do. This method is called whenever
+     * the 'Act' or 'Run' button gets pressed in the environment.
+     */
+    public void act()
+    {
+        MyWorld world = (MyWorld) getWorld();
+        if(world == null || !world.getGSM().isState(PlayingState.class))return;
+        
+        movementLogic();
+        collisionLogic();
+        checkRemove();
+        
+    }
+    
+    protected abstract void movementLogic();
+    protected abstract void collisionLogic();
+    protected abstract void checkRemove();
+}
+
+
+
+==================================================
+FILE: ./Roadroller.java
+==================================================
+
+import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+
+/**
+ * Write a description of class Roadroller here.
+ * 
+ * @author (your name) 
+ * @version (a version number or a date)
+ */
+public class Roadroller extends Obstacles
+{
+    private int scoreAdded = 1;
+    /**
+     * Act - do whatever the Roadroller wants to do. This method is called whenever
+     * the 'Act' or 'Run' button gets pressed in the environment.
+     */
+    private boolean faceLeft = false;
+    private boolean resized = false;
+    
+    private MyWorld world;
+    
+    //Can customise roadroller so that it doesnt give any score
+    public Roadroller(int scoreAdded) {
+        this(); // Calls the original Roadroller() constructor first
+        this.scoreAdded = scoreAdded;
+    }
+    public Roadroller(){
+        //Resizing and orienting the image
+        if(!faceLeft){
+            getImage().mirrorHorizontally();
+            faceLeft = true;
+        }
+        getImage().scale(80,80);
+        
+        speed = 6;
+    }
+    
+    public void movementLogic(){
+        //Negative speed means moving from right to left
+        move(-speed);
+    }
+    
+    public void collisionLogic(){
+        //I'm really afraid of that null pointer error so this is a safety check.
+        if (getWorld() == null) return; 
+
+        // Get the player directly (no need to use isTouching first, this is faster)
+        Player player = (Player) getOneIntersectingObject(Player.class);
+        if (player != null && !player.isDead()) {
+            if (player.checkCustomHitbox(this, 0.6)) {
+                player.die();
+            }
+        }
+    }   
+    
+    public void checkRemove(){
+        //Check remove is checked separately and lastly
+        //because this avoids calling world after removing itself from world
+        //which results in null pointer error (yikes!)
+        if (getX() <= 0) {
+            //When it reaches the end, add score
+            ScoreManager.addScore(scoreAdded);
+            
+            getWorld().removeObject(this);
+            
+        }
+        return;
+    }
+}
+
+
+
+==================================================
+FILE: ./MenuState.java
+==================================================
+
+import greenfoot.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MenuState implements GameState {
+    private List<Actor> uiElements = new ArrayList<>();
+    
+
+    public void enter(MyWorld world) {
+        int middle = world.getWidth()/2;
+        // 1. Title
+        addUI(world, new UIText("DIO-DGE IT", 50, Color.BLACK),middle, 100);
+
+        // 2. The Guide (Instruction block)
+        addUI(world, new UIText("--- HOW TO PLAY ---", 25, Color.LIGHT_GRAY),middle, 220);
+        addUI(world, new UIText("ARROWS: Move DIO", 20, Color.RED),middle, 260);
+        addUI(world, new UIText("W: Pause", 30, Color.RED),middle, 310);
+        
+        // 3. The Objective
+        addUI(world, new UIText("Dodge the Road Rollers to survive!", 22, Color.ORANGE), middle, 350);
+
+        // 4. Start Prompt
+        addUI(world, new UIText("Press ENTER to Begin", 20, Color.CYAN), middle, 380);
+        
+        // Optional: Play intro music
+        // AudioManager.play("menu_theme");
+    }
+
+    public void update(MyWorld world) {
+        // Transition to Playing State
+        if ("enter".equals(Greenfoot.getKey())) {
+            world.getGSM().changeState(world.playingState);
+        }
+    }
+
+    public void exit(MyWorld world) {
+        // Clean up all UI elements so the screen is empty for PlayingState
+        world.removeObjects(uiElements);
+        uiElements.clear();
+    }
+
+    private void addUI(MyWorld world, Actor a, int x, int y) {
+        world.addObject(a, x, y);
+        uiElements.add(a);
+    }
+}
+
+
+==================================================
+FILE: ./Dio.java
+==================================================
+
+import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import java.util.HashMap; // Hash map for animation with its animator...
+/*
+ *   Dio is the player. Although this is a class, this will only be one player 
+ *   (only one object) so static methods are used for convenience. 
+ *   (a pro programmar would probably spit at me for that statement)
+ */
+public class Dio extends Player
+{
+    //A hashmap(dictionary) of animations with key: name and value: the corresponding animator
+    private HashMap<String, Animator> animations = new HashMap<>();
+    //The current animationor and action name it takes in
+    private Animator currentAnimator;
+    private String currentAnimName = "";
+
+    
+    //A 2 second timer before removing object from gae after dying
+    private GameTimer deathTimer = new GameTimer(4.0, false);
+    //Play some animation for 3 seconds only
+    private GameTimer highTimer = new GameTimer(3.0, false);
+    //A timer that allows Dio to play some temporary animation.
+    //Such as death anim, or high animiation
+    private GameTimer activeTimer = null;
+    private String defaultAnim = "Dash";
+    /*
+     * Contructus a DIO by setting up animations.
+     * Currently default animation is Dash as a placeholder
+     */
+    public Dio(){
+        //All the names of the animations: action name, folder name, file prefix are the same.
+        String[] animNames = {"Idle", "Wry", "Dash", "High", "Intro","Scratch", "Roll","Lose", "WalkLeft", "WalkRight"};
+        for (String name : animNames) {
+            // Parameters: Folder name
+            animations.put(name, new Animator("Dio", name));
+        }
+        //Some animations use custom speeds: e.g. scratch is faster
+        animations.put("Scratch", new Animator("Dio","Scratch",3));
+
+        // 2. Set the starting animation
+        setAnimation("Dash");
+    }
+    
+    /*
+     * Sets animatoin based on the name input.
+     */
+    public void setAnimation(String name){
+        //Prevents repetitive calling
+        if (!currentAnimName.equals(name) && animations.containsKey(name)) {
+            currentAnimName = name;
+            currentAnimator = animations.get(name);
+            currentAnimator.reset();
+        }
+    }
+    
+    /*
+     * Overloaded version that accepts a speed
+     */
+    public void setAnimation(String name, int speed) {
+    if (getWorld() == null) return; 
+    if (animations.containsKey(name)) {
+        animations.get(name).setSpeed(speed); // Update the speed
+        setAnimation(name);                   // Call the original logic to switch
+    }
+    }
+    
+    public void playTimedAnimation(String name, GameTimer timer){
+        setAnimation(name);
+        this.activeTimer = timer;
+        this.activeTimer.start();
+    }
+    
+    /*
+     * Sets actor image as the correct frame. 
+     */
+    protected void animationLogic(){
+        if (getWorld() == null) return; 
+        setImage(currentAnimator.getCurrentFrame());
+        
+        //Check if we are in a timed, temporary sequence
+        if(activeTimer != null){
+            activeTimer.update((MyWorld)getWorld());
+            if(activeTimer.isExpired()){
+                activeTimer = null;
+                setAnimation(defaultAnim);
+            }
+        }
+    }
+    /*
+     * Current, trashy movement logic that should be worked on
+     */
+    protected void movementLogic(){
+        if (getWorld() == null) return; 
+        if (isDead) {
+        MyWorld world = (MyWorld) getWorld();
+        
+        // 1. You MUST update the timer every frame so it counts!
+        deathTimer.update(world); 
+        
+        // 2. Check if the time is up
+            if (deathTimer.isExpired()) {
+                world.getGSM().changeState(new GameOverState());
+            }
+        } 
+        
+        else{
+            if(Greenfoot.mouseClicked(null)){
+                playRandomAnimation();
+            }
+            
+            if (Greenfoot.isKeyDown("up")) 
+            {
+                setLocation(getX(), getY() - 5);
+            }
+            
+            if (Greenfoot.isKeyDown("down")) 
+            {
+                setLocation(getX(), getY() + 5);
+            }
+            if (getY() < 0) setLocation(getX(), 0);
+            if (getY() > getWorld().getHeight() - 1) setLocation(getX(), getWorld().getHeight() - 1);
+            
+            // Prevents moving off left/right (if i add horizontal movement later)
+            if (getX() < 0) setLocation(0, getY());
+            if (getX() > getWorld().getWidth() - 1) setLocation(getWorld().getWidth() - 1, getY());
+        }
+        
+    }
+    //Die method is public because anyone can tell player to die
+    public void die(){
+        if (isDead) return;
+        isDead = true;
+        SadFace sadFace = new SadFace();
+        getWorld().addObject(sadFace,300,200);
+        setAnimation("Lose");
+        AudioManager.playPool("dioLostVoices");
+        //Summon many road rollers for cool effect
+        MyWorld world = (MyWorld) getWorld();
+        world.getSpawnManager().deathSpawnAnim(world);
+        //Start counting down
+        //This buys time for voice and animation
+        //After timer, the state changes and world resets
+        deathTimer.start();
+    }
+    
+    /*
+     * A funny method that... calls a random animation (obviously)
+     * However, it is buggy so im not using it. 
+     */
+     private void playRandomAnimation(){
+        Object[] keys = animations.keySet().toArray();
+        int randomIndex = Greenfoot.getRandomNumber(keys.length);
+        String randomAnimName = (String) keys[randomIndex];
+        setAnimation(randomAnimName);
+    }
+    
+    /*
+     * Dio's method overrides the method in player:
+     * normally player can't do anything
+     * but dio can move normally and display a cool banner
+     * bannerSpawned makes sure banner only gets played once, 
+     * and it gets set back to true in player update method.
+     */
+    protected void onPauseUpdate(MyWorld world) {
+        if (!bannerSpawned) {
+            world.addObject(new Banner(BossConfig.DIO), 1120, 200);
+            bannerSpawned = true;
+            playTimedAnimation("Wry", highTimer);
+            highTimer.start();
+        }
+        movementLogic(); // Dio moves during pause!
+        animationLogic();
+    }
+    
+    /*
+     * When playtesting I think Dio's hitbox is too big, so I decided to decrease it here.
+     * 
+     * Padding = 1 => fll image is hitbox
+     * Padding = 0.5 => half image is hitbox
+     */
+
+    public boolean checkCustomHitbox(Actor attacker, double padding) {
+        double distance = Math.hypot(getX() - attacker.getX(), getY() - attacker.getY());
+        
+        double hitboxRadius = ((getImage().getWidth() + getImage().getHeight()) / 4.0) * padding;
+        
+        return distance < hitboxRadius;
+    }
+}
+
+
+
+==================================================
+FILE: ./ScoreManager.java
+==================================================
+
+import greenfoot.*;
+
+
+public class ScoreManager {
+    private static int score = 0;
+    private static int highScore = 0;
+
+    public static void addScore(int amount) {
+        score += amount;
+    }
+
+    public static int getScore() {
+        return score;
+    }
+
+    public static void reset() {
+        if (score > highScore) highScore = score;
+        score = 0;
+    }
+
+    public static int getHighScore() {
+        return highScore;
+    }
+    
+    public static void updateHighScore() {
+        if (score > highScore) {
+            highScore = score;
+        }
+    }
+
+}
+
+
+==================================================
+FILE: ./UIText.java
+==================================================
+
+import greenfoot.*;
+
+public class UIText extends Actor {
+    private String text;
+    private int fontSize;
+    private Color color;
+
+    public UIText(String text, int fontSize, Color color) {
+        this.text = text;
+        this.fontSize = fontSize;
+        this.color = color;
+        updateImage();
+    }
+
+    public void setText(String newText) {
+        if (!newText.equals(this.text)) {
+            this.text = newText;
+            updateImage();
+        }
+    }
+
+    private void updateImage() {
+        // Professional tip: Use a transparent background for UI
+        GreenfootImage img = new GreenfootImage(text, fontSize, color, new Color(0,0,0,0));
+        setImage(img);
+    }
+}
+
+
+==================================================
+FILE: ./GameTimer.java
+==================================================
+
+import greenfoot.*;
+
+public class GameTimer {
+    private int totalFrames;
+    private int remainingFrames;
+    private boolean active;
+    private boolean loop;
+
+    /**
+     * @param seconds How many real-world seconds the timer should run for.
+     * @param loop Whether the timer should be looped. True for looped , false for one time uses.
+     */
+    public GameTimer(double seconds, boolean loop) {
+        // Greenfoot's default speed is approx 60 acts per second
+        this.totalFrames = (int)(seconds * 60);
+        this.remainingFrames = totalFrames;
+        this.loop = loop;
+        this.active = false;
+    }
+    /*
+     * Sample on how to use timer for an ability with a cooldown of 5 seconds:
+     * 
+     * --------
+     * private GameTimer abilityTimer = new GameTimer(5.0, false);
+     * 
+     * if (Greenfoot.isKeyDown("space") && ability.isExpired()) {
+            some_ability_with_cooldown();
+            abilityTimer.reset(); // Refill the cooldown
+            abilityTimer.start(); // Start the countdown
+        }   
+        -------
+        
+        Sample on how to use timer for spawning regularly:
+        
+        --------
+        private GameTimer spawnTimer = new GameTimer(1.5, true); 
+
+        public void update(MyWorld world) {
+        // Start it once
+        spawnTimer.start(); 
+        
+        // This only ticks if the game is NOT paused
+        spawnTimer.update(world); 
+
+        if (spawnTimer.isExpired()) {
+            world.addObject(new Roadroller(), 800, 300);
+            // NOTE: No need to call reset() because loop is true! 
+            // It refills itself automatically.
+        }
+        }
+        --------
+     */
+
+    public void start() {
+        this.active = true;
+    }
+
+    public void stop() {
+        this.active = false;
+    }
+
+    public void reset() {
+        this.remainingFrames = totalFrames;
+    }
+
+    /**
+     * This is the engine of the timer. 
+     * It should be called in the act() method of the Actor or the update() of a State.
+     */
+    public void update(MyWorld world) {
+        // THE ROBUST PART: Only tick down if the game isn't paused
+        // and (optionally) if time isn't stopped by DIO.
+        if (active && world.getGSM().isState(PlayingState.class)) {
+            if (remainingFrames > 0) {
+                remainingFrames--;
+            } else if (loop) {
+                reset();
+            } else {
+                active = false;
+            }
+        }
+    }
+
+    /*
+     * Returns if time is up
+     */
+    public boolean isExpired() {
+        return remainingFrames <= 0;
+    }
+    
+    /*
+     * Returns time remaing in seconds
+     */
+    public double getSecondsRemaining() {
+        return remainingFrames / 60.0;
+    }
+    /*
+     * Returns percentage of time passed.
+     * 
+     * Sample of using percent complete:
+     *  Inside HUD class
+        double progress = abilityTimer.getPercentComplete(); 
+        // Width of bar gets smaller as timer counts down
+        int barWidth = (int)(100 * (1.0 - progress)); 
+        img.fillRect(10, 10, barWidth, 10);
+     */
+    public double getPercentComplete() {
+        return (double)(totalFrames - remainingFrames) / totalFrames;
+    }
+    
+    /*
+     * Resets the duration of the timer
+     */
+    public void setDuration(double seconds) {
+        this.totalFrames = (int)(seconds * 60);
+        reset();
+    }
+    
+    //Count time even if game is paused.
+    public void forceTick() {
+    if (remainingFrames > 0) remainingFrames--;
+    }
+}
+
+
+==================================================
+FILE: ./Player.java
+==================================================
+
+import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+
+/**
+ * Write a description of class Player here.
+ * 
+ * @author (your name) 
+ * @version (a version number or a date)
+ */
+public abstract class Player extends Actor
+{
+    protected boolean isDead = false;
+    //Every player class must have die, movement and animation  logic.
+    //Currently we only have DIO, but new playable characters can be added!
+    
+    //Die method is public because anyone can tell player to die
+    public abstract void die();
+    //Other methods are protected, meaning subclasses can access it but not the rest of the world
+    protected abstract void movementLogic();
+    protected abstract void animationLogic();
+    //This is for hitbox controlling
+    public abstract boolean checkCustomHitbox(Actor attacker, double padding);
+    //Keep track of banner (for dio only)
+    protected boolean bannerSpawned = false; 
+    /**
+     * Act - do whatever the Player wants to do. This method is called whenever
+     * the 'Act' or 'Run' button gets pressed in the environment.
+     */
+    public void act()
+    {
+        MyWorld world = (MyWorld) getWorld();
+        if(world == null) return;
+        
+        //Only update normally if game is in playing state
+        if(!world.getGSM().isState(PlayingState.class)){
+            //If it is in paused state, we can carry out some special things
+            //But normally nothing happens: nobody can move.
+            if(world.getGSM().isState(PausedState.class)){
+            onPauseUpdate(world);
+            }
+            return;
+        }
+        //This banner is for DIO only. I need to tell him he can play banenr again.
+        bannerSpawned = false; 
+        movementLogic();    
+        animationLogic();
+    }
+    
+    public boolean isDead() {
+        return isDead;
+    }
+    
+    //Normally, players do nothing while being paused
+    //This method can be overwritten to do something werid during pause state.
+    protected void onPauseUpdate(MyWorld world) {}
+    
+}
+
+
+
+==================================================
+FILE: ./GameStateManager.java
+==================================================
+
+
+import greenfoot.*;
+import java.util.Stack;
+/**
+ * Write a description of class GameStateManager here.
+ * 
+ * @author (your name) 
+ * @version (a version number or a date)
+ */
+public class GameStateManager  
+{
+    private Stack<GameState> stateStack;
+    /*
+     * A Stack is a collection that follows the Last-In, First-Out (LIFO) principle. 
+     * Imagine a physical stack of plates: 
+     * you can only add a new plate to the top, 
+     * and you must remove the top plate before you can reach the ones underneath.
+     * 
+     * For our game state, we must deal with one state before dealing with the one behind it:
+     * for example, exit pause game before exiting time-stop ability 
+     * 
+     * Common methods of stack are:
+     * push => adds a new "plate" on top of the stack
+     * pop => takes away the top plate, and remove it. 
+     * peek => looks at the top plate, but does not remove it
+     */
+    
+    private MyWorld world;
+    
+    public GameStateManager(MyWorld world){
+        //Creates a stack of states for the world
+        this.stateStack = new Stack<>();
+        this.world = world;
+    }
+    
+    /*
+     * Puts a "plate"(state) on top and enter it
+     */
+    public void pushState(GameState state){
+        stateStack.push(state);
+        state.enter(world);
+    }
+    
+    /*
+     * Throws away the top "plate"(state) and exit it
+     */
+    public void popState(){
+        if(!stateStack.isEmpty()){
+            GameState popped = stateStack.pop();
+            popped.exit(world);
+        }
+    }
+    
+    /*
+     * Change the current state to another one by:
+     * 1. Pop the current state (and exit it)
+     * 2. push the new state  (and enter it)
+     */
+    public void changeState(GameState state){
+        if(!stateStack.isEmpty()){
+            stateStack.pop().exit(world);
+        }
+        stateStack.push(state);
+        state.enter(world);
+    }
+    
+    /*
+     * The main method that updates the game. 
+     * Only update the state on top on the stack.
+     */
+    public void update(){
+        if(!stateStack.isEmpty()){
+            stateStack.peek().update(world);
+        }
+    }
+    
+    /*
+     * Checks if the asked state is currently running.
+     * Useful for actors to check the current state.
+     * 
+     * Parameter: a class (that represents state)
+     */
+    public boolean isState(Class<?> stateClass){
+        if(stateStack.isEmpty()) return false;
+        return stateClass.isInstance(stateStack.peek());
+    }
+    
+    
+    
+}
+
+
+
+==================================================
+FILE: ./BossConfig.java
+==================================================
+
+import greenfoot.*;
+
+/**
+ * Write a description of class BossConfig here.
+ * 
+ * @author (your name) 
+ * @version (a version number or a date)
+ */
+public enum BossConfig  
+{
+   DIO(
+        Color.BLACK, 
+        "dioBattleCry", 
+        new Banner.SpriteOverlay[] {
+            // file name, width, heigh, x offset, y offset
+            new Banner.SpriteOverlay("dio_full.png", 150, 150, -200, 0),
+            new Banner.SpriteOverlay("dio_label.png", 300, 100, 0, 0)
+        }
+    );
+    
+    public final Color bgColor;
+    public final String soundsKey;
+    public final Banner.SpriteOverlay[] overlays;
+
+    private BossConfig(Color color, String soundsKey, Banner.SpriteOverlay[] overlays) {
+        this.bgColor = color;
+        this.soundsKey = soundsKey;
+        this.overlays = overlays;
+    }
+}
+
+
+
+==================================================
+FILE: ./Banner.java
+==================================================
+
+import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+//I imported arraylist for the list of overlay items
+import java.util.List;
+import java.util.ArrayList;
+
+/**
+ * Write a description of class BanBanner here.
+ * 
+ * @author (your name) 
+ * @version (a version number or a date)
+ */
+public class Banner extends Actor{
+
+    /**
+     * Act - do whatever the BanBanner wants to do. This method is called whenever
+     * the 'Act' or 'Run' button gets pressed in the environment.
+     */
+    // 0: entering 1: in the middle 2: exiting 
+    private int state = 0;
+    //How long the banner has been displayed
+    private int timer = 0;
+    //Storing the images
+    private GreenfootImage baseImage;
+    //Control the speed
+    private double speed = -12.0;
+    //Control play sound so that only once is played
+    private boolean playedSound = false;
+    //Boss configurations
+    private BossConfig config;
+    //a private class to store overlay items on the banner (like figure or text)
+    
+    public Banner(BossConfig config){
+        this.config = config;
+        
+        baseImage = new GreenfootImage(810,150);
+        baseImage.setColor(config.bgColor);
+        baseImage.fill();
+        
+        for (SpriteOverlay s: config.overlays){
+            sprites.add(s);
+        }
+        
+        render(150);
+    }
+    
+    public static class SpriteOverlay{
+        GreenfootImage image;
+        int offsetX;
+        int offsetY;
+        
+        public SpriteOverlay(String fileName, int w, int h,int x,int y){
+            this.image = new GreenfootImage(fileName);
+            this.image.scale(w,h);
+            this.offsetX = x;
+            this.offsetY = y;
+        }
+    }
+    //Make an arraylist of overlay items as they may be mutilples of them
+    private List<SpriteOverlay> sprites = new ArrayList<>();
+    
+    private void render (int currentHeight){
+        render(currentHeight,255);
+    }
+    private void render (int currentHeight,int alpha){
+        //Set base image height
+        GreenfootImage canvas = new GreenfootImage(1000,400);
+        //trying transparency
+        canvas.setColor(new Color(0,0,0,0));
+        canvas.fill();
+        
+        //Set background
+        Color c = config.bgColor;
+        int bgH = Math.max(1, currentHeight);
+        int bgW = 900;
+        int bgX = (canvas.getWidth() - bgW) / 2;
+        int bgY = (canvas.getHeight() - bgH) / 2;
+        canvas.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha));
+        canvas.fillRect(bgX, bgY, bgW, bgH);
+        // Set sprite
+        for (SpriteOverlay s : sprites) {
+            int drawX = canvas.getWidth()/2 - s.image.getWidth()/2 + s.offsetX;
+            int drawY = canvas.getHeight()/2 - s.image.getHeight()/2 + s.offsetY;
+            canvas.drawImage(s.image, drawX, drawY);
+        }
+
+        setImage(canvas);
+    }
+    public void act(){
+
+        if(state ==0){
+            slideIn();
+        }
+        else if(state == 1){
+            hold();
+        }
+        else if(state == 2){
+            slideOut();
+        }
+    }
+    private void slideIn(){
+        if (!playedSound){
+            playRandomSound();
+            playedSound = true;
+        }
+        int dist = 400-getX();
+        if(Math.abs(dist)<=4){
+            setLocation(400,getY());
+            state = 1;
+        }
+        else{
+            int step = (int)(dist*0.12);
+            if(step == 0){
+                if(dist>0){
+                    step = 1;
+                }
+                else{
+                    step = -1;
+                }
+            }
+            setLocation(getX()+step,getY());
+        }
+    }
+    
+    private void hold(){
+        //Slowing down in the negative direction
+        speed += 0.4;
+        setLocation(getX()+((int)speed),getY());
+        //Resize the image
+        int d = getX()-200;
+        double ratio = d/200.0;
+        int newHeight = 30 + (int)(120*ratio);
+        render(newHeight);
+        if(speed >= 0){
+            state = 2;
+            speed = 0;
+        }
+        
+    }
+    private void slideOut(){
+        //Increasing speed in the positive direction
+        speed += 1;
+        setLocation(getX()+(int)speed,getY());
+        //Resize the image
+        int d = getX() -200;
+        double ratio = d/200.0;
+        int newHeight = 30 + (int)(120*ratio);
+        int alpha = (int)(255 * (1.0 - ratio/4));
+        if (alpha < 0) alpha = 0;
+        if (alpha > 255) alpha = 255;
+        render(newHeight,alpha);
+    }
+    public void playRandomSound() {
+    String soundsKey = config.soundsKey;
+    AudioManager.playPool(soundsKey);
+    }
+}
+
+
+
+==================================================
+FILE: ./PausedState.java
+==================================================
+
+import greenfoot.*;
+import java.util.ArrayList;
+import java.util.List;
+/**
+ * Write a description of class PausedState here.
+ * 
+ * @author (your name) 
+ * @version (a version number or a date)
+ */
+public class PausedState implements GameState
+{
+    private List<Actor> uiElements = new ArrayList<>();
+    
+    public void enter(MyWorld world){
+        //The game is paused
+        //We will show something like a "GAME PAUSED" banner, but currently its empty
+        UIText title = new UIText("PAUSED", 80, Color.RED);
+        addUI(world, title, world.getWidth()/2, 150);
+
+    }
+    
+    public void update(MyWorld world){
+        //Handle normal game logic, like spawning obstacles, movement logics etc.
+        
+        //Sample of swithicng state: use "p" to unpause, but we can also use a button
+        
+        if("w".equals(Greenfoot.getKey())){
+            //Remove the pause state, resume to normal/whatever state previosly running.
+            world.getGSM().popState();
+            
+        }
+        
+        //Some eastereggs?
+    }
+    
+    public void exit(MyWorld world){
+        //Clean things up as we leave this state, such as removing the "GAME PAUSED" banner
+        world.removeObjects(uiElements);
+    }
+    
+    private void addUI(MyWorld world, Actor a, int x, int y) {
+        world.addObject(a, x, y);
+        uiElements.add(a);
+    }
+}
+
+
+
+==================================================
+FILE: ./PlayingState.java
+==================================================
+
+import greenfoot.*;
+/**
+ * Playing state is the default state of game running.
+ * 
+ * The GameStateManager can add this state to its stack, and call its methods
+ */
+public class PlayingState implements GameState
+{
+    //A spawn manager will handle all spawning problems
+    public SpawnManager spawnManager;
+    
+    //UI Components
+    private UIText scoreDisplay;
+    public void enter(MyWorld world){
+        //The normal game running: spawns players, reset timers, play music etc.
+        
+        ScoreManager.reset(); //Reset score
+        AudioManager.playLoop("dio_bgm"); //Play bgm
+        //Sample: this is how you call some basic actors
+        
+        Dio dio = new Dio();
+        world.addObject(dio,80,80);
+
+        Roadroller roadroller = new Roadroller();
+        int y = Greenfoot.getRandomNumber(world.getHeight());
+        world.addObject(roadroller,400,y);
+        
+        spawnManager = new SpawnManager();
+
+        scoreDisplay = new UIText("SCORE: 0", 30, Color.BLACK);
+        world.addObject(scoreDisplay, 100, 30);
+        //Sample: this is how you call a banner
+        //addObject(new Banner(BossConfig.DIO), 1120, 200);
+    }
+    
+    public void update(MyWorld world){
+        //Handle normal game logic, like spawning obstacles, movement logics etc.
+        
+        //Sample of swithicng state: click "p" to pause. But we can also use a button
+        if("w".equals(Greenfoot.getKey())){
+            world.getGSM().pushState(new PausedState());
+        }
+        spawnManager.update(world);
+        //Update score display
+        scoreDisplay.setText("SCORE: " + ScoreManager.getScore());
+
+    }
+    
+    public void exit(MyWorld world){
+        //Clean things up as we leave this state.
+        AudioManager.stop("dio_bgm"); //Stop bgm
+        world.removeObjects(world.getObjects(null));
+    }
+    
+    //Getter method for spawn manager
+    public SpawnManager getSpawnManager() {
+        return spawnManager;
+    }
+}
+
+
+
+==================================================
+FILE: ./GameState.java
+==================================================
+
+import greenfoot.*;
+/**
+ *This interface governs gamemodes:
+ *All game modes must have an enter, update and exit method. 
+ */
+public interface GameState  
+{
+    void enter (MyWorld world);
+    
+    void update(MyWorld world);
+    
+    void exit(MyWorld world);
+}
+
+
+
+==================================================
+FILE: ./Animator.java
+==================================================
+
+import java.util.ArrayList;
+import greenfoot.*;
+import java.io.File;
+/**
+ * Write a description of class Animator here.
+ * 
+ * Animator takes in the time and tracks the correct image from the animation
+ * Call animator with
+ * 
+ */
+
+
+/**
+ * ANIMATION LIST FOR DIO
+ * ---------------------
+ * Dash         - Runs
+ * High         - brain massage
+ * Idle         - Standing still
+ * Intro        - Cool intro
+ * Lose         - Defeat state
+ * Roll         - Dodge move
+ * Scratch       - Brain massag + wry
+ * Up           - Up slash
+ * WalkLeft     - Moving left
+ * WalkRight    - Moving right
+ * Wry          - WRYYYYYYY
+ * 
+ * (special: to be implemented later)
+ * Description: Dio teleports backwards as his Stand appears to punch.
+ * Requires two animations play simultaneously, and locatio change.
+ * WorldPunch   - Special attack
+ * Teleport     - pairs with WorldPunch
+ * 
+ */
+public class Animator  
+{
+    public static final int FRAME_DELAY = 6;//Frames per image, higher = slower
+    private GreenfootImage[] frames;
+    private int currentFrame = 0;
+    private int timer = 0;
+    private int speed;//Higher = slower (frames between images)
+    
+    /*
+     * The more detailed constructor for animator that takes in more parameters 
+     * to help with debugging and customizability. 
+     */
+    public Animator(String baseFolder,String folderName,String prefix, int frameCount, int speed){
+        this.speed = speed;
+        frames = new GreenfootImage[frameCount]; 
+        
+        for (int i = 0 ; i < frameCount; i++){
+            //%03d => 3 digits with leading zero
+            String suffix = String.format("%03d",i);
+            String fileName = baseFolder + "/" + folderName +"/" + prefix + "_" + suffix + ".png";
+            frames[i] = new GreenfootImage(fileName);
+        }
+    }
+    /*
+     * The more general constructor for animator that only takes in folder name
+     * Easy to call
+     */
+    public Animator(String baseFolder,String folderName){
+        this(baseFolder,folderName,folderName,0,5);
+        int frameCount = countFrames(baseFolder, folderName);
+        this.speed = FRAME_DELAY;
+        this.frames = new GreenfootImage[frameCount];
+        for (int i = 0; i < frameCount; i++) {
+            String suffix = String.format("%03d",i);
+            String fileName = baseFolder + "/" + folderName + "/" + folderName + "_" + suffix + ".png";
+            frames[i] = new GreenfootImage(fileName);
+        }
+        
+    }
+    /*
+     * The more general constructor for animator that only takes in folder name AND SPEED
+     * Easy to call
+     */
+    public Animator(String baseFolder, String folderName,int speed){
+        this(baseFolder, folderName,folderName,0,speed);
+        int frameCount = countFrames(baseFolder, folderName);
+        this.speed = speed;
+        this.frames = new GreenfootImage[frameCount];
+        for (int i = 0; i < frameCount; i++) {
+            String suffix = String.format("%03d",i);
+            String fileName = baseFolder + "/" + folderName + "/" + folderName + "_" + suffix + ".png";
+            frames[i] = new GreenfootImage(fileName);
+        }
+        
+    }
+    /*
+     * Counts the number of frames in the folder for easy registration
+     * HASDS NOTHING TO DO WITH ANIMATION
+     */
+    private int countFrames(String baseFolder, String folderName) {
+    // Greenfoot looks for images in the "images" folder of your project
+    File dir = new File("images/" + baseFolder + "/"+ folderName);
+    
+    // Check if the directory exists
+    if (dir.exists() && dir.isDirectory()) {
+        // Filter to only count .png files
+        String[] files = dir.list((d, name) -> name.toLowerCase().endsWith(".png"));
+        return (files != null) ? files.length : 0;
+    }
+    return 0;
+    }
+    
+    /*
+     * Find the current image given the current time.
+     */
+    public GreenfootImage getCurrentFrame(){
+        timer++;
+        if(timer >= speed){
+            timer = 0;
+            currentFrame = (currentFrame +1)%frames.length; //loop back to start
+        }
+        return frames[currentFrame];
+    }
+    
+    /*
+     * Resets timer and frame. 
+     */
+    public void reset(){
+        currentFrame = 0; 
+        timer = 0;
+    }
+    /*
+     * adjust speed upon request
+     */
+    public void setSpeed(int speed) {
+    this.speed = speed;
+    }
+}
+
+
+
+==================================================
+FILE: ./SpawnManager.java
+==================================================
+
+import greenfoot.*;
+/**
+ * Write a description of class SpawnManager here.
+ * 
+ * @author (your name) 
+ * @version (a version number or a date)
+ */
+public class SpawnManager  
+{
+    private int spawnTimer = 0;
+    private final int defaultSpawnRate = 60;
+    private int minSpawnRate = 6;//Spawning 10 road rollers is very manageable with time stop and a small hitbox.
+    private int spawnRate = defaultSpawnRate; //Spanws every 60 frame
+    
+    private int levelUpTime = 40;//Decrease spawn rate by 1 every 40 frames/ 0.6 second
+    private int mobCount;
+    private int difficultyTimer = 0;
+    private boolean scorelessObstacle = false;
+    
+    
+    public void update(MyWorld world){
+        spawnTimer++; 
+        difficultyTimer++;
+        //Notice: this timer is exclusive to spawn manager, and only increases
+        //when it gets called (which usually means game is runnin)
+        
+        if(spawnTimer >= spawnRate){
+            spawnTimer = 0;
+            
+            if(scorelessObstacle){
+                spawnObstacle(world, 0);
+            }
+            else{
+            spawnObstacle(world);
+            }
+        }
+        if(difficultyTimer > levelUpTime){
+            if(spawnRate > minSpawnRate){
+               spawnRate--;
+            }
+               difficultyTimer = 0;
+        }
+        
+    }
+    
+    private void reset(MyWorld world){
+        spawnRate = defaultSpawnRate;
+        scorelessObstacle = false;
+        difficultyTimer = 0;
+    }
+    
+    private void spawnObstacle(MyWorld world){
+        
+        int y = Greenfoot.getRandomNumber(world.getHeight());
+        world.addObject(new Roadroller(),world.getWidth(),y);
+    }
+    
+    //Spawning obstalce with custom score
+    private void spawnObstacle(MyWorld world, int score){
+        
+        int y = Greenfoot.getRandomNumber(world.getHeight());
+        world.addObject(new Roadroller(score),world.getWidth(),y);
+    }
+    
+    //Spawn many road rollers for cool effect
+    public void deathSpawnAnim(MyWorld world){
+        spawnRate = 2;
+        scorelessObstacle = true;
+    }
+}
+
+
+
+==================================================
+FILE: ./AudioManager.java
+==================================================
+
+import greenfoot.*;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+/*
+ * The voice manager can play sounds in two ways:
+ * 1. Play a single sound.music
+ * 2. Play randomly from a list of sounds
+ * 
+ * Sample: 
+ * AudioManager.play("some_key_of_single_sound"); 
+ * AudioManager.playPool"some_key_of_souns_pool); 
+ * 
+ * 
+ * To add new voices:
+ * 
+ * 1. Add the mp3 file to the sound file, make sure to organise properly
+ * 2.a)  loadSound(String key, String file name, int volume) for single sounds
+ * 2.b)  loadVoicePool(String key, String array file names, int volume)
+ */
+public class AudioManager {
+    // Stores single sounds (BGM, UI clicks)
+    private static HashMap<String, GreenfootSound> sounds = new HashMap<>();
+    
+    // Stores groups of sounds (Voice lines for random selection)
+    private static HashMap<String, List<GreenfootSound>> voicePools = new HashMap<>();
+
+    // Setup method that gets called once the game starts
+    //Loads the files from hard drive into RAM permanently
+    public static void init() {
+        // Pre-load background music
+        loadSound("dio_bgm","eye_of_heaven_dio_bgm.mp3", 20);
+        
+        
+        loadSound("lost_bgm","brawl_stars_lost_bgm.mp3", 15);
+        
+        
+        // Example of a single sound 
+        // loadSound("punch", "sounds/punch.mp3", 70);
+        
+        // Pre-load voice pools
+        String[] loseFiles = {"dio_voiceline/dio_lost.mp3", "dio_voiceline/dio_lost2.mp3"};
+        loadVoicePool("dioLostVoices", loseFiles, 20);
+        
+        String[] dioBattleCry = {"dio_voiceline/wry.mp3","dio_voiceline/high.mp3", "dio_voiceline/muda_muda.mp3","dio_voiceline/Voicy_Timestop DiegoBrando.mp3"};
+        loadVoicePool("dioBattleCry", dioBattleCry,40);
+    }
+
+    //Helper method to load single sounds
+    private static void loadSound(String key, String file, int volume) {
+        GreenfootSound s = new GreenfootSound(file);
+        s.setVolume(volume);
+        sounds.put(key, s);
+    }
+    
+    //Helper method to load multiple sounds
+    private static void loadVoicePool(String key, String[] files, int volume) {
+        List<GreenfootSound> pool = new ArrayList<>();
+        for (String f : files) {
+            GreenfootSound s = new GreenfootSound(f);
+            s.setVolume(volume);
+            pool.add(s);
+        }
+        voicePools.put(key, pool);
+    }
+
+    //Methods to play sounds
+    public static void play(String key) {
+        if (sounds.containsKey(key)) {
+            GreenfootSound s = sounds.get(key);
+            if (s.isPlaying()) s.stop(); // Restart if already playing
+            s.play();
+        }
+    }
+
+    public static void playPool(String poolKey) {
+        if (voicePools.containsKey(poolKey)) {
+            List<GreenfootSound> pool = voicePools.get(poolKey);
+            int index = Greenfoot.getRandomNumber(pool.size());
+            GreenfootSound s = pool.get(index);
+            // This prevents the "Cut-off" because 's' is stored in our Map 
+            // and won't be garbage collected!
+            s.play(); 
+        }
+    }
+    
+    //Loop music (used for bgm)
+    public static void playLoop(String key) {
+        if (sounds.containsKey(key)) {
+            GreenfootSound s = sounds.get(key);
+            if (!s.isPlaying()) {
+                s.playLoop();
+            }
+        }
+    }
+    
+    //Stops music
+    public static void stop(String key) {
+        if (sounds.containsKey(key)) {
+            sounds.get(key).stop();
+        }
+    }
+}
+

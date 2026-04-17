@@ -48,9 +48,4 @@ public class MyWorld extends World {
         return gsm;
     }
     
-    //Getter method for spawn manager
-    public SpawnManager getSpawnManager() {
-        return playingState.getSpawnManager();
-    }
-    
 }
