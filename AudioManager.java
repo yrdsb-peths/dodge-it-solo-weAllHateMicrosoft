@@ -29,14 +29,18 @@ public class AudioManager {
     //Loads the files from hard drive into RAM permanently
     public static void init() {
         // Pre-load background music
-        //loadSound("bgm_main", 50);
+        loadSound("dio_bgm","eye_of_heaven_dio_bgm.mp3", 10);
+        
+        
+        loadSound("lost_bgm","brawl_stars_lost_bgm.mp3", 15);
+        
         
         // Example of a single sound 
         // loadSound("punch", "sounds/punch.mp3", 70);
         
         // Pre-load voice pools
         String[] loseFiles = {"dio_voiceline/dio_lost.mp3", "dio_voiceline/dio_lost2.mp3"};
-        loadVoicePool("dioLostVoices", loseFiles, 20);
+        loadVoicePool("dioLostVoices", loseFiles, 15);
         
         String[] dioBattleCry = {"dio_voiceline/wry.mp3","dio_voiceline/high.mp3", "dio_voiceline/muda_muda.mp3","dio_voiceline/Voicy_Timestop DiegoBrando.mp3"};
         loadVoicePool("dioBattleCry", dioBattleCry,20);
@@ -77,6 +81,23 @@ public class AudioManager {
             // This prevents the "Cut-off" because 's' is stored in our Map 
             // and won't be garbage collected!
             s.play(); 
+        }
+    }
+    
+    //Loop music (used for bgm)
+    public static void playLoop(String key) {
+        if (sounds.containsKey(key)) {
+            GreenfootSound s = sounds.get(key);
+            if (!s.isPlaying()) {
+                s.playLoop();
+            }
+        }
+    }
+    
+    //Stops music
+    public static void stop(String key) {
+        if (sounds.containsKey(key)) {
+            sounds.get(key).stop();
         }
     }
 }

@@ -7,19 +7,25 @@ import greenfoot.*;
  */
 public class SpawnManager  
 {
-    private int timer = 0;
-    private int spawnRate = 60; //Spanws every 60 frame
-    private int mobCount;
+    private int spawnTimer = 0;
+    private final int defaultSpawnRate = 60;
+    private int minSpawnRate = 10;//Spawning 6 road rollers is very manageable with time stop and a small hitbox.
+    private int spawnRate = defaultSpawnRate; //Spanws every 60 frame
     
+    private int levelUpTime = 20;//Decrease spawn rate by 1 every 20 frames/ seconds
+    private int mobCount;
+    private int difficultyTimer = 0;
     private boolean scorelessObstacle = false;
     
+    
     public void update(MyWorld world){
-        timer++; 
+        spawnTimer++; 
+        difficultyTimer++;
         //Notice: this timer is exclusive to spawn manager, and only increases
         //when it gets called (which usually means game is runnin)
         
-        if(timer >= spawnRate){
-            timer = 0;
+        if(spawnTimer >= spawnRate){
+            spawnTimer = 0;
             
             if(scorelessObstacle){
                 spawnObstacle(world, 0);
@@ -27,10 +33,20 @@ public class SpawnManager
             else{
             spawnObstacle(world);
             }
-           //Make the game harder by make things spawn more often, but not decreasing every frame of course
-           //if(spawnRate > 20) spawnRate--;
+        }
+        if(difficultyTimer > levelUpTime){
+            if(spawnRate > minSpawnRate){
+               spawnRate--;
+            }
+               difficultyTimer = 0;
         }
         
+    }
+    
+    private void reset(MyWorld world){
+        spawnRate = defaultSpawnRate;
+        scorelessObstacle = false;
+        difficultyTimer = 0;
     }
     
     private void spawnObstacle(MyWorld world){

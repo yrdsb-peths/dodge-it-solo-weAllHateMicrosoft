@@ -17,6 +17,8 @@ public abstract class Player extends Actor
     //Other methods are protected, meaning subclasses can access it but not the rest of the world
     protected abstract void movementLogic();
     protected abstract void animationLogic();
+    //This is for hitbox controlling
+    public abstract boolean checkCustomHitbox(Actor attacker, double padding);
     //Keep track of banner (for dio only)
     protected boolean bannerSpawned = false; 
     /**

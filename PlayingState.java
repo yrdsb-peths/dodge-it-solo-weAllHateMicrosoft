@@ -15,10 +15,11 @@ public class PlayingState implements GameState
         //The normal game running: spawns players, reset timers, play music etc.
         
         ScoreManager.reset(); //Reset score
+        AudioManager.playLoop("dio_bgm"); //Play bgm
         //Sample: this is how you call some basic actors
         
         Dio dio = new Dio();
-        world.addObject(dio,100,100);
+        world.addObject(dio,80,80);
 
         Roadroller roadroller = new Roadroller();
         int y = Greenfoot.getRandomNumber(world.getHeight());
@@ -47,11 +48,12 @@ public class PlayingState implements GameState
     
     public void exit(MyWorld world){
         //Clean things up as we leave this state.
+        AudioManager.stop("dio_bgm"); //Stop bgm
         world.removeObjects(world.getObjects(null));
     }
     
     //Getter method for spawn manager
     public SpawnManager getSpawnManager() {
-    return spawnManager;
+        return spawnManager;
     }
 }

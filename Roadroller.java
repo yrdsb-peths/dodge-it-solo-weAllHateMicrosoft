@@ -46,7 +46,9 @@ public class Roadroller extends Obstacles
         // Get the player directly (no need to use isTouching first, this is faster)
         Player player = (Player) getOneIntersectingObject(Player.class);
         if (player != null && !player.isDead()) {
-            player.die();
+            if (player.checkCustomHitbox(this, 0.6)) {
+                player.die();
+            }
         }
     }   
     

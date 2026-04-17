@@ -170,4 +170,19 @@ public class Dio extends Player
         movementLogic(); // Dio moves during pause!
         animationLogic();
     }
+    
+    /*
+     * When playtesting I think Dio's hitbox is too big, so I decided to decrease it here.
+     * 
+     * Padding = 1 => fll image is hitbox
+     * Padding = 0.5 => half image is hitbox
+     */
+
+    public boolean checkCustomHitbox(Actor attacker, double padding) {
+        double distance = Math.hypot(getX() - attacker.getX(), getY() - attacker.getY());
+        
+        double hitboxRadius = ((getImage().getWidth() + getImage().getHeight()) / 4.0) * padding;
+        
+        return distance < hitboxRadius;
+    }
 }

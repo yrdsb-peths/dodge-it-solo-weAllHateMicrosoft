@@ -7,6 +7,8 @@ public class GameOverState implements GameState {
     private List<Actor> uiElements = new ArrayList<>();
 
     public void enter(MyWorld world) {
+        
+        AudioManager.playLoop("lost_bgm"); //Play bgm
         // 1. Process Scores immediately
         ScoreManager.updateHighScore();
         int finalScore = ScoreManager.getScore();
@@ -40,6 +42,7 @@ public class GameOverState implements GameState {
     public void exit(MyWorld world) {
         // Remove all the UIs
         //Potentially clean up anythign if needed
+        AudioManager.stop("lost_bgm"); //Play bgm
         world.removeObjects(uiElements);
     }
 
