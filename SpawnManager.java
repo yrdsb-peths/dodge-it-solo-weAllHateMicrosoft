@@ -7,12 +7,14 @@ import greenfoot.*;
  */
 public class SpawnManager  
 {
+  
+    
+    
     private int spawnTimer = 0;
     private final int defaultSpawnRate = 60;
-    private int minSpawnRate = 6;//Spawning 10 road rollers is very manageable with time stop and a small hitbox.
-    private int spawnRate = defaultSpawnRate; //Spanws every 60 frame
+    private int minRoadrollerSpawnRate = 15;//Spawning 4 road rollers per second is very manageable with time stop and a small hitbox.
+    private int roadrollerSpawnRate = defaultSpawnRate; //Spanws every 60 frame
     
-    private int levelUpTime = 40;//Decrease spawn rate by 1 every 40 frames/ 0.6 second
     private int mobCount;
     private int difficultyTimer = 0;
     private boolean scorelessObstacle = false;
@@ -24,19 +26,21 @@ public class SpawnManager
         //Notice: this timer is exclusive to spawn manager, and only increases
         //when it gets called (which usually means game is runnin)
         
-        if(spawnTimer >= spawnRate){
+        if(spawnTimer >= roadrollerSpawnRate){
             spawnTimer = 0;
             
             if(scorelessObstacle){
-                spawnObstacle(world, 0);
+                spawnRoadroller(world, 0);
             }
             else{
-            spawnObstacle(world);
+            spawnRoadroller(world);
+            //Justtesting
+            spawnTrain(world);
             }
         }
         if(difficultyTimer > levelUpTime){
-            if(spawnRate > minSpawnRate){
-               spawnRate--;
+            if(roadrollerSpawnRate > minRoadrollerSpawnRate){
+               roadrollerSpawnRate--;
             }
                difficultyTimer = 0;
         }
@@ -44,22 +48,30 @@ public class SpawnManager
     }
     
     private void reset(MyWorld world){
-        spawnRate = defaultSpawnRate;
+        roadrollerSpawnRate = defaultSpawnRate;
         scorelessObstacle = false;
         difficultyTimer = 0;
     }
     
-    private void spawnObstacle(MyWorld world){
-        
-        int y = Greenfoot.getRandomNumber(world.getHeight());
-        world.addObject(new Roadroller(),world.getWidth(),y);
+    private void spawnRoadroller(MyWorld world){
+        int randomLane = Greenfoot.getRandomNumber(ScrollingRoad.LANES.length);
+        int spawnY = ScrollingRoad.LANES[randomLane];
+        world.addObject(new Roadroller(),world.getWidth(),spawnY);
     }
     
     //Spawning obstalce with custom score
-    private void spawnObstacle(MyWorld world, int score){
-        
-        int y = Greenfoot.getRandomNumber(world.getHeight());
-        world.addObject(new Roadroller(score),world.getWidth(),y);
+    private void spawnRoadroller(MyWorld world, int score){
+        int randomLane = Greenfoot.getRandomNumber(ScrollingRoad.LANES.length);
+        int spawnY = ScrollingRoad.LANES[randomLane];
+        world.addObject(new Roadroller(score),world.getWidth(),spawnY);
+    }
+    
+    private void spawnTrain(MyWorld world){
+        int randomLane = Greenfoot.getRandomNumber(ScrollingRoad.LANES.length);
+        int spawnY = ScrollingRoad.LANES[randomLane];
+        world.addObject(new Exclaimation(),world.getWidth()-20,spawnY );
+        world.addObject(new PathWarning(world.getWidth(), 40), world.getWidth()/2, spawnY);
+        world.addObject(new Train(), world.getWidth()+40, spawnY);
     }
 
 }

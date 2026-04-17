@@ -22,6 +22,8 @@ public class Roadroller extends Obstacles
         this.scoreToAdd = scoreToAdd;
     }
     public Roadroller(){
+        GreenfootImage img = new GreenfootImage("obstacles/road_roller.png");
+        setImage(img);
         //Resizing and orienting the image
         getImage().mirrorHorizontally();
         getImage().scale(80,80);
@@ -41,7 +43,8 @@ public class Roadroller extends Obstacles
         // Get the player directly (no need to use isTouching first, this is faster)
         Player player = (Player) getOneIntersectingObject(Player.class);
         if (player != null && !player.isDead()) {
-            if (player.checkCustomHitbox(this, 0.6)) {
+            if (player.checkCustomHitbox(this, 0.8)) {
+                AudioManager.play("car_crash");
                 player.die();
             }
         }

@@ -32,6 +32,8 @@ import java.io.File;
  * Teleport     - pairs with WorldPunch
  * 
  */
+
+
 public class Animator  
 {
     public static final int FRAME_DELAY = 6;//Frames per image, higher = slower; this is the standard speed
@@ -44,7 +46,7 @@ public class Animator
      * The more detailed constructor for animator that takes in more parameters 
      * to help with debugging and customizability. 
      */
-    public Animator(String baseFolder,String folderName,String prefix, int frameCount, int speed){
+    public Animator(String baseFolder,String folderName,String prefix, int frameCount, int speed, double scaleFactor){
         this.speed = speed;
         frames = new GreenfootImage[frameCount]; 
         
@@ -53,6 +55,10 @@ public class Animator
             String suffix = String.format("%03d",i);
             String fileName = baseFolder + "/" + folderName +"/" + prefix + "_" + suffix + ".png";
             frames[i] = new GreenfootImage(fileName);
+            int newWidth = (int)(frames[i].getWidth() * scaleFactor);
+            int newHeight = (int)(frames[i].getHeight() * scaleFactor);
+            frames[i].scale(newWidth, newHeight);
+
         }
     }
     
@@ -60,16 +66,16 @@ public class Animator
      * The more general constructor for animator that only takes in folder name
      * Easy to call
      */
-    public Animator(String baseFolder, String folderName) {
-        this(baseFolder, folderName, folderName, countFrames(baseFolder, folderName), FRAME_DELAY);
+    public Animator(String baseFolder, String folderName, double scaleFactor) {
+        this(baseFolder, folderName, folderName, countFrames(baseFolder, folderName), FRAME_DELAY, scaleFactor);
     }
 
     /*
      * The more general constructor for animator that only takes in folder name AND SPEED
      * Easy to call
      */
-    public Animator(String baseFolder, String folderName, int speed) {
-        this(baseFolder, folderName, folderName, countFrames(baseFolder, folderName), speed);
+    public Animator(String baseFolder, String folderName, int speed, double scaleFactor) {
+        this(baseFolder, folderName, folderName, countFrames(baseFolder, folderName), speed, scaleFactor);
     }
     
     /*
