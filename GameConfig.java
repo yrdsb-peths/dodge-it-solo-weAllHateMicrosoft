@@ -19,7 +19,7 @@ public class GameConfig {
     public static final int TRAIN_WIDTH = s(130);
     
     //b. Difficulty settings
-    public static final int LEVEL_UP_TIME = 3;
+    public static final int LEVEL_UP_TIME = 300;
     public static final int ROADROLLER_RATE = 60;// number of frames for a car, decreass with difficulty;
     public static final int ROADROLLER_MIN_RATE= 15;
     public static final int ROADROLLER_SPEED = s(6);
