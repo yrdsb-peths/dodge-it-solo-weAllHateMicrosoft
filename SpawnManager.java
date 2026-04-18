@@ -13,17 +13,17 @@ public class SpawnManager
     
     //== Difficulty Settings ==
     private int difficultyLevel = 0;
-    private int levelUpTime = 300;//Level up every 5 seconds
+    private int levelUpTime = GameConfig.LEVEL_UP_TIME;//Level up every 5 seconds
     
     //Control Roadroller rate
-    private int roadrollerRate = 60;// number of frames for a car
-    private final int roadrollerMin = 15;
+    private int roadrollerRate = GameConfig.ROADROLLER_RATE;// number of frames for a car
+    private final int roadrollerMin = GameConfig.ROADROLLER_MIN_RATE;
     
     //Control train rate
-    private int trainRate = 200;// number of frames for a car, decreass with difficulty
-    private final int trainMin = 50;
+    private int trainRate = GameConfig.TRAIN_RATE;// number of frames for a car, decreass with difficulty
+    private final int trainMin = GameConfig.TRAIN_MIN_RATE;
     private int trainSpeed = 25;//Increases with difficulty
-    private final int trainSpeedMax = 25;
+    private final int trainSpeedMax = GameConfig.TRAIN_MAX_SPEED;
     
     //Unnecessary boolean 
     private boolean scorelessObstacle = false;
@@ -65,7 +65,7 @@ public class SpawnManager
         // The Train logic is kept in one place
         world.addObject(new Exclaimation(), world.getWidth() - 20, spawnY);
         world.addObject(new PathWarning(world.getWidth(), 40), world.getWidth() / 2, spawnY);
-        world.addObject(new Train(speed), world.getWidth() - 20, spawnY);
+        world.addObject(new Train(speed), world.getWidth() + 50, spawnY);
     }
 
     private int getRandomLane() {

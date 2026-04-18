@@ -23,6 +23,8 @@ public class Dio extends Player
     private GameTimer activeTimer = null;
     private String defaultAnim = "Dash";
     
+    private final int moveSpeed = GameConfig.DIO_MOVE_SPEED;// 5 pixels per frame
+    
     //Storing death location
     private int dieX, dieY;
     //Images are quite big so I'm scaling all of them by 0.8
@@ -118,12 +120,12 @@ public class Dio extends Player
             
             if (Greenfoot.isKeyDown("up")) 
             {
-                setLocation(getX(), getY() - 5);
+                setLocation(getX(), getY() - moveSpeed);
             }
             
             if (Greenfoot.isKeyDown("down")) 
             {
-                setLocation(getX(), getY() + 5);
+                setLocation(getX(), getY() + moveSpeed);
             }
             if (getY() < 0) setLocation(getX(), 0);
             if (getY() > getWorld().getHeight() - 1) setLocation(getX(), getWorld().getHeight() - 1);

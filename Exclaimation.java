@@ -8,7 +8,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
  */
 public class Exclaimation extends Actor
 {
-    private GameTimer lifeTimer = new GameTimer(2.0, false);
+    private GameTimer lifeTimer = new GameTimer(1.0, false);
     private Animator exclaimAnim;
     
     public Exclaimation(){

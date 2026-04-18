@@ -13,7 +13,7 @@ public class MyWorld extends World {
         //Initiate a world (arguments: width, height, idk, bound)
         //False means things are not limited by the boundary and can go through it
         //This is helpful as we do not want a limiting boundar
-        super(600, 400, 1,false);
+        super(GameConfig.WORLD_WIDTH,GameConfig.WORLD_HEIGHT, 1,false);
         //Initiate a game state manager, pasing this world (MyWorld) as the argument
         gsm = new GameStateManager(this);//gsm stands for game state manager.
         
