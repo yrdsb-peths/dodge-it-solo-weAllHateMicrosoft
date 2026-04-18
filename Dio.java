@@ -28,7 +28,6 @@ public class Dio extends Player
     //Storing death location
     private int dieX, dieY;
     //Images are quite big so I'm scaling all of them by 0.8
-    private double dioScale = 0.8;
     /*
      * Contructus a DIO by setting up animations.
      * Currently default animation is Dash as a placeholder
@@ -38,10 +37,10 @@ public class Dio extends Player
         String[] animNames = {"Idle", "Wry", "Dash", "High", "Intro","Scratch", "Roll","Lose", "WalkLeft", "WalkRight"};
         for (String name : animNames) {
             // Parameters: Folder name
-            animations.put(name, new Animator("Dio", name, dioScale));
+            animations.put(name, new Animator("Dio", name, GameConfig.DIO_BASE_SCALE));
         }
         //Some animations use custom speeds: e.g. scratch is faster
-        animations.put("Scratch", new Animator("Dio","Scratch",3, dioScale));
+        animations.put("Scratch", new Animator("Dio","Scratch",3, GameConfig.DIO_BASE_SCALE));
 
         // 2. Set the starting animation
         setAnimation("Dash");
@@ -64,6 +63,7 @@ public class Dio extends Player
      */
     public void setAnimation(String name, int speed) {
     if (getWorld() == null) return; 
+    if (isDead && !name.equals("Lose")) return;
     if (animations.containsKey(name)) {
         animations.get(name).setSpeed(speed); // Update the speed
         setAnimation(name);                   // Call the original logic to switch
@@ -85,7 +85,7 @@ public class Dio extends Player
         setImage(currentAnimator.getCurrentFrame());
         
         //Check if we are in a timed, temporary sequence
-        if(activeTimer != null){
+        if(!isDead &&activeTimer != null){
             activeTimer.update((MyWorld)getWorld());
             if(activeTimer.isExpired()){
                 activeTimer = null;
@@ -174,7 +174,7 @@ public class Dio extends Player
      */
     protected void onPauseUpdate(MyWorld world) {
         if (!bannerSpawned) {
-            world.addObject(new Banner(BossConfig.DIO), 1120, 200);
+            world.addObject(new Banner(BossConfig.DIO), GameConfig.s(1120), GameConfig.s(200));
             bannerSpawned = true;
             playTimedAnimation("Wry", highTimer);
         }
@@ -192,7 +192,10 @@ public class Dio extends Player
     public boolean checkCustomHitbox(Actor attacker, double padding) {
         double distance = Math.hypot(getX() - attacker.getX(), getY() - attacker.getY());
         
-        double hitboxRadius = ((getImage().getWidth() + getImage().getHeight()) / 4.0) * padding;
+        
+        double baseWidth = getImage().getWidth();
+        double baseHeight = getImage().getHeight();
+        double hitboxRadius = ((baseWidth + baseHeight) / 4.0 * padding);
         
         return distance < hitboxRadius;
     }

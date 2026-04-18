@@ -9,8 +9,7 @@ public class Train extends Obstacles {
         
         GreenfootImage img = new GreenfootImage("obstacles/ambulence.png");
         setImage(img);
-        getImage().scale(130,130);
-        
+        getImage().scale(GameConfig.TRAIN_WIDTH, GameConfig.TRAIN_WIDTH);
         this.speed = speed;
         /*
         // DRAW THE CAR (No assets needed!)

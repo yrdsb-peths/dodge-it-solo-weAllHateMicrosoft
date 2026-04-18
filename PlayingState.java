@@ -1,57 +1,42 @@
 import greenfoot.*;
-/**
- * Playing state is the default state of game running.
- * 
- * The GameStateManager can add this state to its stack, and call its methods
- */
+
 public class PlayingState implements GameState
 {
-    //A spawn manager will handle all spawning problems
     private SpawnManager spawnManager;
-    
-    //UI Components
     private UIText scoreDisplay;
+
     public void enter(MyWorld world){
-        //The normal game running: spawns players, reset timers, play music etc.
+        ScoreManager.reset(); 
+        AudioManager.playLoop("dio_bgm"); 
         
-        ScoreManager.reset(); //Reset score
-        AudioManager.playLoop("dio_bgm"); //Play bgm
-        
-        world.addObject(new ScrollingRoad(), 300, 200);//Add the scrolling road two times
-        world.addObject(new ScrollingRoad(), 900, 200);
-        //Sample: this is how you call some basic actors
-        
+        // Road placement - world.getWidth() is already scaled, so this math stays clean!
+        world.addObject(new ScrollingRoad(), world.getWidth() / 2, world.getHeight() / 2);
+        world.addObject(new ScrollingRoad(), world.getWidth() + (world.getWidth() / 2), world.getHeight() / 2);
+
+        // DIO starting position must be scaled
         Dio dio = new Dio();
-        world.addObject(dio,80,80);
+        world.addObject(dio, GameConfig.s(80), GameConfig.s(80));
         
         spawnManager = new SpawnManager();
 
-        scoreDisplay = new UIText("SCORE: 0", 30, Color.BLACK);
-        world.addObject(scoreDisplay, 100, 30);
-        //Sample: this is how you call a banner
-        //addObject(new Banner(BossConfig.DIO), 1120, 200);
+        // Score UI size and position must be scaled
+        scoreDisplay = new UIText("SCORE: 0", GameConfig.s(30), Color.BLACK);
+        world.addObject(scoreDisplay, GameConfig.s(100), GameConfig.s(30));
     }
     
     public void update(MyWorld world){
-        //Handle normal game logic, like spawning obstacles, movement logics etc.
-        
-        //Sample of swithicng state: click "p" to pause. But we can also use a button
         if("w".equals(Greenfoot.getKey())){
             world.getGSM().pushState(new PausedState());
         }
         spawnManager.update(world);
-        //Update score display
         scoreDisplay.setText("SCORE: " + ScoreManager.getScore());
-
     }
     
     public void exit(MyWorld world){
-        //Clean things up as we leave this state.
-        AudioManager.stop("dio_bgm"); //Stop bgm
+        AudioManager.stop("dio_bgm");
         world.removeObjects(world.getObjects(null));
     }
     
-    //Getter method for spawn manager
     public SpawnManager getSpawnManager() {
         return spawnManager;
     }

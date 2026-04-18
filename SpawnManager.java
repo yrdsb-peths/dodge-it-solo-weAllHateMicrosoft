@@ -22,7 +22,7 @@ public class SpawnManager
     //Control train rate
     private int trainRate = GameConfig.TRAIN_RATE;// number of frames for a car, decreass with difficulty
     private final int trainMin = GameConfig.TRAIN_MIN_RATE;
-    private int trainSpeed = 25;//Increases with difficulty
+    private int trainSpeed = GameConfig.TRAIN_MAX_SPEED;//Increases with difficulty
     private final int trainSpeedMax = GameConfig.TRAIN_MAX_SPEED;
     
     //Unnecessary boolean 
@@ -62,14 +62,19 @@ public class SpawnManager
 
     private void spawnTrain(MyWorld world, int speed) {
         int spawnY = getRandomLane();
-        // The Train logic is kept in one place
-        world.addObject(new Exclaimation(), world.getWidth() - 20, spawnY);
-        world.addObject(new PathWarning(world.getWidth(), 40), world.getWidth() / 2, spawnY);
-        world.addObject(new Train(speed), world.getWidth() + 50, spawnY);
+        
+        int pathHeight = GameConfig.LANE_HEIGHT; 
+        int exclaimXOffset = GameConfig.s(20);
+        int trainXOffset = GameConfig.s(50);
+        // The Train spawning logic is kept in one place:
+        //The !, the path warning, and the actual train 
+        world.addObject(new Exclaimation(), world.getWidth() - exclaimXOffset, spawnY);
+        world.addObject(new PathWarning(world.getWidth(), pathHeight), world.getWidth() / 2, spawnY);
+        world.addObject(new Train(speed), world.getWidth() + trainXOffset, spawnY);
     }
 
     private int getRandomLane() {
-        return ScrollingRoad.LANES[Greenfoot.getRandomNumber(ScrollingRoad.LANES.length)];
+        return GameConfig.LANES[Greenfoot.getRandomNumber(GameConfig.LANES.length)];
     }
 
 }

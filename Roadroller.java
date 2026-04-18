@@ -26,7 +26,7 @@ public class Roadroller extends Obstacles
         setImage(img);
         //Resizing and orienting the image
         getImage().mirrorHorizontally();
-        getImage().scale(80,80);
+        getImage().scale(GameConfig.ROADROLLER_WIDTH, GameConfig.ROADROLLER_WIDTH);
         //Moves at 6 pixels per frame
         speed = GameConfig.ROADROLLER_SPEED;
     }

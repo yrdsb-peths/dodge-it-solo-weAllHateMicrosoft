@@ -1,38 +1,30 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
-//I imported arraylist for the list of overlay items
 import java.util.List;
 import java.util.ArrayList;
 
 /**
- * Write a description of class BanBanner here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
+ * Professional Scaled Banner System.
+ * Every dimension and speed is now linked to GameConfig.SCALE.
  */
-public class Banner extends Actor{
+public class Banner extends Actor {
 
-    /**
-     * Act - do whatever the BanBanner wants to do. This method is called whenever
-     * the 'Act' or 'Run' button gets pressed in the environment.
-     */
     // 0: entering 1: in the middle 2: exiting 
     private int state = 0;
-    //How long the banner has been displayed
     private int timer = 0;
-    //Storing the images
+    
     private GreenfootImage baseImage;
-    //Control the speed
-    private double speed = -12.0;
-    //Control play sound so that only once is played
+    
+    // Control the speed - Scaled based on global SCALE
+    private double speed = -12.0 * GameConfig.SCALE;
+    
     private boolean playedSound = false;
-    //Boss configurations
     private BossConfig config;
-    //a private class to store overlay items on the banner (like figure or text)
     
     public Banner(BossConfig config){
         this.config = config;
         
-        baseImage = new GreenfootImage(810,150);
+        // Scaled base image size
+        baseImage = new GreenfootImage(GameConfig.s(810), GameConfig.s(150));
         baseImage.setColor(config.bgColor);
         baseImage.fill();
         
@@ -40,6 +32,7 @@ public class Banner extends Actor{
             sprites.add(s);
         }
         
+        // Initial height (150) must be base height
         render(150);
     }
     
@@ -48,35 +41,40 @@ public class Banner extends Actor{
         int offsetX;
         int offsetY;
         
-        public SpriteOverlay(String fileName, int w, int h,int x,int y){
+        public SpriteOverlay(String fileName, int w, int h, int x, int y){
             this.image = new GreenfootImage(fileName);
-            this.image.scale(w,h);
-            this.offsetX = x;
-            this.offsetY = y;
+            // Scale the overlay sprites as they are loaded
+            this.image.scale(GameConfig.s(w), GameConfig.s(h));
+            // Scale the offsets
+            this.offsetX = GameConfig.s(x);
+            this.offsetY = GameConfig.s(y);
         }
     }
-    //Make an arraylist of overlay items as they may be mutilples of them
+
     private List<SpriteOverlay> sprites = new ArrayList<>();
     
     private void render (int currentHeight){
-        render(currentHeight,255);
+        render(currentHeight, 255);
     }
-    private void render (int currentHeight,int alpha){
-        //Set base image height
-        GreenfootImage canvas = new GreenfootImage(1000,400);
-        //trying transparency
+
+    private void render (int currentHeight, int alpha){
+        // Scale the canvas buffer
+        GreenfootImage canvas = new GreenfootImage(GameConfig.s(1000), GameConfig.s(400));
         canvas.setColor(new Color(0,0,0,0));
         canvas.fill();
         
-        //Set background
         Color c = config.bgColor;
-        int bgH = Math.max(1, currentHeight);
-        int bgW = 900;
+        
+        // Scale background dimensions
+        int bgH = Math.max(1, GameConfig.s(currentHeight));
+        int bgW = GameConfig.s(900);
         int bgX = (canvas.getWidth() - bgW) / 2;
         int bgY = (canvas.getHeight() - bgH) / 2;
+        
         canvas.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha));
         canvas.fillRect(bgX, bgY, bgW, bgH);
-        // Set sprite
+
+        // Set sprites - offsets are already scaled in the SpriteOverlay constructor
         for (SpriteOverlay s : sprites) {
             int drawX = canvas.getWidth()/2 - s.image.getWidth()/2 + s.offsetX;
             int drawY = canvas.getHeight()/2 - s.image.getHeight()/2 + s.offsetY;
@@ -85,9 +83,9 @@ public class Banner extends Actor{
 
         setImage(canvas);
     }
-    public void act(){
 
-        if(state ==0){
+    public void act(){
+        if(state == 0){
             slideIn();
         }
         else if(state == 1){
@@ -97,63 +95,76 @@ public class Banner extends Actor{
             slideOut();
         }
     }
+
     private void slideIn(){
         if (!playedSound){
             playRandomSound();
             playedSound = true;
         }
-        int dist = 400-getX();
-        if(Math.abs(dist)<=4){
-            setLocation(400,getY());
+        
+        // Scaled target X coordinate (400)
+        int targetX = GameConfig.s(400);
+        int dist = targetX - getX();
+        
+        if(Math.abs(dist) <= GameConfig.s(4)){
+            setLocation(targetX, getY());
             state = 1;
         }
         else{
-            int step = (int)(dist*0.12);
+            int step = (int)(dist * 0.12);
             if(step == 0){
-                if(dist>0){
-                    step = 1;
-                }
-                else{
-                    step = -1;
-                }
+                step = (dist > 0) ? 1 : -1;
             }
-            setLocation(getX()+step,getY());
+            setLocation(getX() + step, getY());
         }
     }
     
     private void hold(){
-        //Slowing down in the negative direction
-        speed += 0.4;
-        setLocation(getX()+((int)speed),getY());
-        //Resize the image
-        int d = getX()-200;
-        double ratio = d/200.0;
-        int newHeight = 30 + (int)(120*ratio);
+        // Acceleration scaled by global SCALE
+        speed += (0.4 * GameConfig.SCALE);
+        setLocation(getX() + ((int)speed), getY());
+        
+        // Resizing logic - targets are scaled
+        int startPoint = GameConfig.s(200);
+        int d = getX() - startPoint;
+        double ratio = d / (double)startPoint;
+        
+        // Scale the animated heights
+        int newHeight = GameConfig.s(30) + (int)(GameConfig.s(120) * ratio);
         render(newHeight);
+
         if(speed >= 0){
             state = 2;
             speed = 0;
         }
-        
     }
+
     private void slideOut(){
-        //Increasing speed in the positive direction
-        speed += 1;
-        setLocation(getX()+(int)speed,getY());
-        //Resize the image
-        int d = getX() -200;
-        double ratio = d/200.0;
-        int newHeight = 30 + (int)(120*ratio);
-        int alpha = (int)(255 * (1.0 - ratio/4));
+        // Increasing speed scaled by global SCALE
+        speed += (1.0 * GameConfig.SCALE);
+        setLocation(getX() + (int)speed, getY());
+        
+        // Resizing logic - targets are scaled
+        int startPoint = GameConfig.s(200);
+        int d = getX() - startPoint;
+        double ratio = d / (double)startPoint;
+        
+        int newHeight = GameConfig.s(30) + (int)(GameConfig.s(120) * ratio);
+        int alpha = (int)(255 * (1.0 - ratio/4.0));
+        
         if (alpha < 0) alpha = 0;
         if (alpha > 255) alpha = 255;
-        render(newHeight,alpha);
-        if (getX() > getWorld().getWidth() + 600) {
-        getWorld().removeObject(this);
+        
+        render(newHeight, alpha);
+        
+        // Removal check - coordinate scaled
+        if (getX() > getWorld().getWidth() + GameConfig.s(600)) {
+            getWorld().removeObject(this);
         }   
     }
+
     public void playRandomSound() {
-    String soundsKey = config.soundsKey;
-    AudioManager.playPool(soundsKey);
+        String soundsKey = config.soundsKey;
+        AudioManager.playPool(soundsKey);
     }
 }

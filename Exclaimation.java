@@ -12,7 +12,7 @@ public class Exclaimation extends Actor
     private Animator exclaimAnim;
     
     public Exclaimation(){
-        exclaimAnim = new Animator("symbols","exclaimation",0.1);
+        exclaimAnim = new Animator("symbols", "exclaimation", 0.1 * GameConfig.SCALE);
         lifeTimer.start();
     }
     public void act()

@@ -1,21 +1,17 @@
 import greenfoot.*;
 
 public class ScrollingRoad extends Actor {
-    private static final int SPEED = 5;
-    
+    private static final int SPEED = GameConfig.ROAD_SCROLL_SPEED;//Moves 5 pixels per frame
+    private int width = GameConfig.WORLD_WIDTH;
     // THE LANE MAP: Other classes (like SpawnManager) can use this!
     // For a 400px height with 5 lanes, centers are: 40, 120, 200, 280, 360
-    public static final int[] LANES = {40, 120, 200, 280, 360};
-    
-    private int width;
 
     public ScrollingRoad() {
-        this.width = 600;
         drawPlaceholderRoad();
     }
 
     private void drawPlaceholderRoad() {
-        GreenfootImage img = new GreenfootImage(width, 400);
+        GreenfootImage img = new GreenfootImage(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT);
         
         // 1. Draw Asphalt
         img.setColor(new Color(50, 50, 50));
@@ -23,11 +19,12 @@ public class ScrollingRoad extends Actor {
         
         // 2. Draw Lane Lines
         img.setColor(Color.YELLOW);
-        for (int i = 1; i < LANES.length; i++) {
-            int lineY = (LANES[i] + LANES[i-1]) / 2;
-            // Draw dashed lines
-            for (int x = 0; x < width; x += 40) {
-                img.fillRect(x, lineY - 2, 20, 4);
+        for (int i = 1; i < GameConfig.LANES.length; i++) {
+            //Lane locations are stored in game config
+            int lineY = (GameConfig.LANES[i] + GameConfig.LANES[i-1]) / 2;
+            // Draw dashed lines(they are scaled by game config too)
+            for (int x = 0; x < width; x += GameConfig.s(40)) {
+                img.fillRect(x, lineY - 2, GameConfig.s(20), GameConfig.s(4));
             }
         }
         setImage(img);
