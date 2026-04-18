@@ -7,15 +7,15 @@ import java.util.List;
  * @author (your name) 
  * @version (a version number or a date)
  */
-public class PausedState implements GameState
+public class State_Paused implements GameState
 {
     private List<Actor> uiElements = new ArrayList<>();
     
     public void enter(MyWorld world){
         //The game is paused
         //We will show something like a "GAME PAUSED" banner, but currently its empty
-        UIText title = new UIText("PAUSED", GameConfig.s(80), Color.RED);
-        addUI(world, title, world.getWidth()/2, GameConfig.s(150));
+        UIText title = new UIText("PAUSED", Config_Game.s(80), Color.RED);
+        addUI(world, title, world.getWidth()/2, Config_Game.s(150));
 
     }
     

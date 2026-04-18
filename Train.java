@@ -9,7 +9,7 @@ public class Train extends Obstacles {
         
         GreenfootImage img = new GreenfootImage("obstacles/ambulence.png");
         setImage(img);
-        getImage().scale(GameConfig.TRAIN_WIDTH, GameConfig.TRAIN_WIDTH);
+        getImage().scale(Config_Game.TRAIN_WIDTH, Config_Game.TRAIN_WIDTH);
         this.speed = speed;
         /*
         // DRAW THE CAR (No assets needed!)
@@ -57,7 +57,7 @@ public class Train extends Obstacles {
         if (p != null && !p.isDead()) {
             // At 25 speed, the collision needs to be tight
             if (p.checkCustomHitbox(this, 1)) {
-                AudioManager.play("car_crash");
+                Mgr_Audio.play("car_crash");
                 p.die();
             }
         }
@@ -65,7 +65,7 @@ public class Train extends Obstacles {
 
     protected void checkRemove() {
         if (getX() < -100) {
-            ScoreManager.addScore(5); // Big points for dodging the fast one
+            Mgr_Score.addScore(5); // Big points for dodging the fast one
             getWorld().removeObject(this);
         }
     }

@@ -18,7 +18,7 @@ import java.util.List;
  * 2.a)  loadSound(String key, String file name, int volume) for single sounds
  * 2.b)  loadVoicePool(String key, String array file names, int volume)
  */
-public class AudioManager {
+public class Mgr_Audio {
     // Stores single sounds (BGM, UI clicks)
     private static HashMap<String, GreenfootSound> sounds = new HashMap<>();
     

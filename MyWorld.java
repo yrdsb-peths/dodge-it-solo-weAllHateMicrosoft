@@ -3,7 +3,7 @@ import greenfoot.*;
 public class MyWorld extends World {
     private GameStateManager gsm;
     
-    public PlayingState playingState; 
+    public State_Playing playingState; 
     //Game state manager is a class we defined to manage game states
     //Game states are stored as classes, with the "blueprint" (interface) GameState, 
     //which requires:
@@ -13,16 +13,16 @@ public class MyWorld extends World {
         //Initiate a world (arguments: width, height, idk, bound)
         //False means things are not limited by the boundary and can go through it
         //This is helpful as we do not want a limiting boundar
-        super(GameConfig.WORLD_WIDTH,GameConfig.WORLD_HEIGHT, 1,false);
+        super(Config_Game.WORLD_WIDTH,Config_Game.WORLD_HEIGHT, 1,false);
         //Initiate a game state manager, pasing this world (MyWorld) as the argument
         gsm = new GameStateManager(this);//gsm stands for game state manager.
         
         //Start the game in the playing state
         //Remember, pushState adds the state on top of the stack,and enters that state
-        playingState = new PlayingState();
-        gsm.pushState(new MenuState());
+        playingState = new State_Playing();
+        gsm.pushState(new State_Menu());
         //Initilaise the audio manager to load sounds into RAM
-        AudioManager.init();
+        Mgr_Audio.init();
         
         
     }

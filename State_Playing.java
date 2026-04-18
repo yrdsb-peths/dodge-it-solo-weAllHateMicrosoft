@@ -1,13 +1,13 @@
 import greenfoot.*;
 
-public class PlayingState implements GameState
+public class State_Playing implements GameState
 {
-    private SpawnManager spawnManager;
+    private Mgr_Spawn spawnManager;
     private UIText scoreDisplay;
 
     public void enter(MyWorld world){
-        ScoreManager.reset(); 
-        AudioManager.playLoop("dio_bgm"); 
+        Mgr_Score.reset(); 
+        Mgr_Audio.playLoop("dio_bgm"); 
         
         // Road placement - world.getWidth() is already scaled, so this math stays clean!
         world.addObject(new ScrollingRoad(), world.getWidth() / 2, world.getHeight() / 2);
@@ -15,29 +15,29 @@ public class PlayingState implements GameState
 
         // DIO starting position must be scaled
         Dio dio = new Dio();
-        world.addObject(dio, GameConfig.s(80), GameConfig.s(80));
+        world.addObject(dio, Config_Game.s(80), Config_Game.s(80));
         
-        spawnManager = new SpawnManager();
+        spawnManager = new Mgr_Spawn();
 
         // Score UI size and position must be scaled
-        scoreDisplay = new UIText("SCORE: 0", GameConfig.s(30), Color.BLACK);
-        world.addObject(scoreDisplay, GameConfig.s(100), GameConfig.s(30));
+        scoreDisplay = new UIText("SCORE: 0", Config_Game.s(30), Color.BLACK);
+        world.addObject(scoreDisplay, Config_Game.s(100), Config_Game.s(30));
     }
     
     public void update(MyWorld world){
         if("w".equals(Greenfoot.getKey())){
-            world.getGSM().pushState(new PausedState());
+            world.getGSM().pushState(new State_Paused());
         }
         spawnManager.update(world);
-        scoreDisplay.setText("SCORE: " + ScoreManager.getScore());
+        scoreDisplay.setText("SCORE: " + Mgr_Score.getScore());
     }
     
     public void exit(MyWorld world){
-        AudioManager.stop("dio_bgm");
+        Mgr_Audio.stop("dio_bgm");
         world.removeObjects(world.getObjects(null));
     }
     
-    public SpawnManager getSpawnManager() {
+    public Mgr_Spawn getSpawnManager() {
         return spawnManager;
     }
 }

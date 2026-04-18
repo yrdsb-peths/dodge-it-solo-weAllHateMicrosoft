@@ -9,10 +9,10 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 public class Exclaimation extends Actor
 {
     private GameTimer lifeTimer = new GameTimer(1.0, false);
-    private Animator exclaimAnim;
+    private Mgr_Animator exclaimAnim;
     
     public Exclaimation(){
-        exclaimAnim = new Animator("symbols", "exclaimation", 0.1 * GameConfig.SCALE);
+        exclaimAnim = new Mgr_Animator("symbols", "exclaimation", 0.1 * Config_Game.SCALE);
         lifeTimer.start();
     }
     public void act()

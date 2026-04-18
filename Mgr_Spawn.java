@@ -5,7 +5,7 @@ import greenfoot.*;
  * @author (your name) 
  * @version (a version number or a date)
  */
-public class SpawnManager  
+public class Mgr_Spawn  
 {
   
     
@@ -13,17 +13,17 @@ public class SpawnManager
     
     //== Difficulty Settings ==
     private int difficultyLevel = 0;
-    private int levelUpTime = GameConfig.LEVEL_UP_TIME;//Level up every 5 seconds
+    private int levelUpTime = Config_Game.LEVEL_UP_TIME;//Level up every 5 seconds
     
     //Control Roadroller rate
-    private int roadrollerRate = GameConfig.ROADROLLER_RATE;// number of frames for a car
-    private final int roadrollerMin = GameConfig.ROADROLLER_MIN_RATE;
+    private int roadrollerRate = Config_Game.ROADROLLER_RATE;// number of frames for a car
+    private final int roadrollerMin = Config_Game.ROADROLLER_MIN_RATE;
     
     //Control train rate
-    private int trainRate = GameConfig.TRAIN_RATE;// number of frames for a car, decreass with difficulty
-    private final int trainMin = GameConfig.TRAIN_MIN_RATE;
-    private int trainSpeed = GameConfig.TRAIN_MAX_SPEED;//Increases with difficulty
-    private final int trainSpeedMax = GameConfig.TRAIN_MAX_SPEED;
+    private int trainRate = Config_Game.TRAIN_RATE;// number of frames for a car, decreass with difficulty
+    private final int trainMin = Config_Game.TRAIN_MIN_RATE;
+    private int trainSpeed = Config_Game.TRAIN_MAX_SPEED;//Increases with difficulty
+    private final int trainSpeedMax = Config_Game.TRAIN_MAX_SPEED;
     
     //Unnecessary boolean 
     private boolean scorelessObstacle = false;
@@ -63,9 +63,9 @@ public class SpawnManager
     private void spawnTrain(MyWorld world, int speed) {
         int spawnY = getRandomLane();
         
-        int pathHeight = GameConfig.LANE_HEIGHT; 
-        int exclaimXOffset = GameConfig.s(20);
-        int trainXOffset = GameConfig.s(50);
+        int pathHeight = Config_Game.LANE_HEIGHT; 
+        int exclaimXOffset = Config_Game.s(20);
+        int trainXOffset = Config_Game.s(50);
         // The Train spawning logic is kept in one place:
         //The !, the path warning, and the actual train 
         world.addObject(new Exclaimation(), world.getWidth() - exclaimXOffset, spawnY);
@@ -74,7 +74,7 @@ public class SpawnManager
     }
 
     private int getRandomLane() {
-        return GameConfig.LANES[Greenfoot.getRandomNumber(GameConfig.LANES.length)];
+        return Config_Game.LANES[Greenfoot.getRandomNumber(Config_Game.LANES.length)];
     }
 
 }

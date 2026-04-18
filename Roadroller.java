@@ -26,9 +26,9 @@ public class Roadroller extends Obstacles
         setImage(img);
         //Resizing and orienting the image
         getImage().mirrorHorizontally();
-        getImage().scale(GameConfig.ROADROLLER_WIDTH, GameConfig.ROADROLLER_WIDTH);
+        getImage().scale(Config_Game.ROADROLLER_WIDTH, Config_Game.ROADROLLER_WIDTH);
         //Moves at 6 pixels per frame
-        speed = GameConfig.ROADROLLER_SPEED;
+        speed = Config_Game.ROADROLLER_SPEED;
     }
     
     public void movementLogic(){
@@ -44,7 +44,7 @@ public class Roadroller extends Obstacles
         Player player = (Player) getOneIntersectingObject(Player.class);
         if (player != null && !player.isDead()) {
             if (player.checkCustomHitbox(this, 0.8)) {
-                AudioManager.play("car_crash");
+                Mgr_Audio.play("car_crash");
                 player.die();
             }
         }
@@ -60,7 +60,7 @@ public class Roadroller extends Obstacles
             if (!players.isEmpty()) {
                 Player player = players.get(0);
                 if (!player.isDead()) {
-                    ScoreManager.addScore(scoreToAdd);
+                    Mgr_Score.addScore(scoreToAdd);
                 }
             }
             

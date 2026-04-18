@@ -18,7 +18,7 @@ public class MyWorld extends World {
         //Initiate a world (arguments: width, height, idk, bound)
         //False means things are not limited by the boundary and can go through it
         //This is helpful as we do not want a limiting boundar
-        super(GameConfig.WORLD_WIDTH,GameConfig.WORLD_HEIGHT, 1,false);
+        super(Config_Game.WORLD_WIDTH,Config_Game.WORLD_HEIGHT, 1,false);
         //Initiate a game state manager, pasing this world (MyWorld) as the argument
         gsm = new GameStateManager(this);//gsm stands for game state manager.
         
@@ -92,52 +92,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameOverState implements GameState {
-    // We use a list to keep track of UI elements for easy cleanup
     private List<Actor> uiElements = new ArrayList<>();
 
     public void enter(MyWorld world) {
+        AudioManager.playLoop("lost_bgm"); 
         
-        AudioManager.playLoop("lost_bgm"); //Play bgm
-        // 1. Process Scores immediately
         ScoreManager.updateHighScore();
         int finalScore = ScoreManager.getScore();
         int bestScore = ScoreManager.getHighScore();
         
-        // 2. Create UI Elements
-        // "RETIRED" is the classic JoJo defeat text
-        UIText title = new UIText("RETIRED", 80, Color.RED);
-        UIText scoreTxt = new UIText("Final Score: " + finalScore, 30, Color.RED);
-        UIText bestTxt = new UIText("Best Survival: " + bestScore, 30, Color.RED);
-        UIText restartPrompt = new UIText("Press ENTER to Restart", 25, Color.BLACK);
+        // Create UI Elements with scaled font sizes
+        UIText title = new UIText("RETIRED", Config_Game.s(80), Color.RED);
+        UIText scoreTxt = new UIText("Final Score: " + finalScore, Config_Game.s(30), Color.RED);
+        UIText bestTxt = new UIText("Best Survival: " + bestScore, Config_Game.s(30), Color.RED);
+        UIText restartPrompt = new UIText("Press ENTER to Restart", Config_Game.s(25), Color.BLACK);
 
-        // 3. Add to World and track them for cleanup
-        addUI(world, title, world.getWidth()/2, 150);
-        addUI(world, scoreTxt, world.getWidth()/2, 200);
-        addUI(world, bestTxt, world.getWidth()/2, 250);
-        addUI(world, restartPrompt, world.getWidth()/2, 300);
-        
-        // Professional Touch: Play the defeat sound via our Manager
-        // AudioManager.playVoice("dio_lost");
+        // Position them using scaled Y-coordinates
+        int midX = world.getWidth() / 2;
+        addUI(world, title, midX, Config_Game.s(150));
+        addUI(world, scoreTxt, midX, Config_Game.s(200));
+        addUI(world, bestTxt, midX, Config_Game.s(250));
+        addUI(world, restartPrompt, midX, Config_Game.s(300));
     }
 
     public void update(MyWorld world) {
-        // Check for restart
         if ("enter".equals(Greenfoot.getKey())) {
-            // changeState deletes this state and starts a fresh PlayingState
             world.getGSM().changeState(new PlayingState());
         }
     }
 
     public void exit(MyWorld world) {
-        // Remove all the UIs
-        //Potentially clean up anythign if needed
-        AudioManager.stop("lost_bgm"); //Play bgm
+        AudioManager.stop("lost_bgm"); 
         world.removeObjects(uiElements);
     }
 
-    /**
-     * Helper to add UI and keep track of it automatically
-     */
     private void addUI(MyWorld world, Actor a, int x, int y) {
         world.addObject(a, x, y);
         uiElements.add(a);
@@ -215,9 +203,9 @@ public class Roadroller extends Obstacles
         setImage(img);
         //Resizing and orienting the image
         getImage().mirrorHorizontally();
-        getImage().scale(GameConfig.ROADROLLER_WIDTH, GameConfig.ROADROLLER_WIDTH);
+        getImage().scale(Config_Game.ROADROLLER_WIDTH, Config_Game.ROADROLLER_WIDTH);
         //Moves at 6 pixels per frame
-        speed = GameConfig.ROADROLLER_SPEED;
+        speed = Config_Game.ROADROLLER_SPEED;
     }
     
     public void movementLogic(){
@@ -272,37 +260,32 @@ import java.util.List;
 
 public class MenuState implements GameState {
     private List<Actor> uiElements = new ArrayList<>();
-    
 
     public void enter(MyWorld world) {
-        int middle = world.getWidth()/2;
-        // 1. Title
-        addUI(world, new UIText("DIO-DGE IT", 50, Color.BLACK),middle, 100);
+        int middle = world.getWidth() / 2;
+        
+        // 1. Title - Using Large Font from Config
+        addUI(world, new UIText("DIO-DGE IT", Config_Game.s(50), Color.BLACK), middle, Config_Game.s(100));
 
         // 2. The Guide (Instruction block)
-        addUI(world, new UIText("--- HOW TO PLAY ---", 25, Color.LIGHT_GRAY),middle, 220);
-        addUI(world, new UIText("ARROWS: Move DIO", 20, Color.RED),middle, 260);
-        addUI(world, new UIText("W: Pause", 30, Color.RED),middle, 310);
+        addUI(world, new UIText("--- HOW TO PLAY ---", Config_Game.s(25), Color.LIGHT_GRAY), middle, Config_Game.s(220));
+        addUI(world, new UIText("ARROWS: Move DIO", Config_Game.s(20), Color.RED), middle, Config_Game.s(260));
+        addUI(world, new UIText("W: Pause", Config_Game.s(30), Color.RED), middle, Config_Game.s(310));
         
         // 3. The Objective
-        addUI(world, new UIText("Dodge the Road Rollers to survive!", 22, Color.ORANGE), middle, 350);
+        addUI(world, new UIText("Dodge the Road Rollers to survive!", Config_Game.s(22), Color.ORANGE), middle, Config_Game.s(350));
 
         // 4. Start Prompt
-        addUI(world, new UIText("Press ENTER to Begin", 20, Color.CYAN), middle, 380);
-        
-        // Optional: Play intro music
-        // AudioManager.play("menu_theme");
+        addUI(world, new UIText("Press ENTER to Begin", Config_Game.s(20), Color.CYAN), middle, Config_Game.s(380));
     }
 
     public void update(MyWorld world) {
-        // Transition to Playing State
         if ("enter".equals(Greenfoot.getKey())) {
             world.getGSM().changeState(world.playingState);
         }
     }
 
     public void exit(MyWorld world) {
-        // Clean up all UI elements so the screen is empty for PlayingState
         world.removeObjects(uiElements);
         uiElements.clear();
     }
@@ -329,7 +312,7 @@ public class Train extends Obstacles {
         
         GreenfootImage img = new GreenfootImage("obstacles/ambulence.png");
         setImage(img);
-        getImage().scale(GameConfig.TRAIN_WIDTH, GameConfig.TRAIN_WIDTH);
+        getImage().scale(Config_Game.TRAIN_WIDTH, Config_Game.TRAIN_WIDTH);
         this.speed = speed;
         /*
         // DRAW THE CAR (No assets needed!)
@@ -395,48 +378,50 @@ public class Train extends Obstacles {
 
 
 ==================================================
-FILE: ./GameConfig.java
+FILE: ./Config_Game.java
 ==================================================
 
 import greenfoot.*;
 
-public class GameConfig {
-    // 1. GLOBAL SCALING
-    public static final float SCALE = 1.0f; 
+public class Config_Game {
+    // 1. GLOBAL SCALING: This scales every image. By default, it is 1. To make things larger and occupy more screen, it is currently 1.5 
+    public static final float SCALE = 1.5f; 
     
     // 2. WORLD SETTINGS
-    public static final int WORLD_WIDTH = s(600);
-    public static final int WORLD_HEIGHT = s(400);
+    public static final int WORLD_WIDTH = s(600);//World widht is 600 pixels
+    public static final int WORLD_HEIGHT = s(400);// World height is 400 pixels
     public static final int LANE_HEIGHT = s(80); // Lanes are 80px apart
     
     // 3. PLAYER SETTINGS (DIO)
-    public static final int DIO_MOVE_SPEED = s(5);
+    public static final int DIO_MOVE_SPEED = s(5);//Dio moves 5 pixels per frame
     public static final double DIO_BASE_SCALE = 0.8 * SCALE; //Dio should be 0.8 its image size
 
     // 4. ENEMY SETTINGS
     //a. Obstacle Size
-    public static final int ROADROLLER_WIDTH = s(80);
+    public static final int ROADROLLER_WIDTH = s(80);//Roadroller is 80 pixels wide
+    
     public static final int TRAIN_WIDTH = s(130);
+        // Train is 130 pixels wide. (Its an Ambulance, but its called a train because it works likes a train and looks like an ambulance).
+        //If you dont know why an ambulance is this powerful, you probably have to ask Kira Yoshkage, i think he knows the answer.
+    
     //b. Difficulty settings
-    public static final int LEVEL_UP_TIME = 300;
+    public static final int LEVEL_UP_TIME = 300;//Game gets more difficulty per 300 frame
     public static final int ROADROLLER_RATE = 60;// number of frames for a car, decreass with difficulty;
     public static final int ROADROLLER_MIN_RATE= 15;
-    public static final int ROADROLLER_SPEED = s(6);
+    public static final int ROADROLLER_SPEED = s(6);//Roadroller moves 6 frames per second
     
     public static final int TRAIN_RATE = 200;// number of frames for a car, decreass with difficulty;
     public static final int TRAIN_MIN_RATE = 50;
-    public static final int TRAIN_MAX_SPEED = s(25);
-    public static final int SPAWN_INTERVAL_START = 60;
-    
-        
+    public static final int TRAIN_SPEED = s(25);//Train moves at 25 pixesl per frame by default
+    public static final int TRAIN_MAX_SPEED = s(60);//Train can move at 60 pixels per frame at its peak
+      
     // Road & Lanes
-    public static final int ROAD_WIDTH = s(600);
-    public static final int ROAD_HEIGHT = s(400);
+    public static final int ROAD_SCROLL_SPEED = s(5);//The background "roads" moves at 5 pixels per second
     // We calculate lanes based on the scaled world height
-    public static final int[] LANES = { s(40), s(120), s(200), s(280), s(360) };
+    public static final int[] LANES = { s(40), s(120), s(200), s(280), s(360) };//These are the locations of the "lanes"
     
         
-    // UI (Word Size, these are just placeholder values as for now)
+    // UI (Font Size)
     public static final int FONT_SIZE_LARGE = s(80);
     public static final int FONT_SIZE_SMALL = s(30);
     
@@ -476,7 +461,7 @@ public class Dio extends Player
     private GameTimer activeTimer = null;
     private String defaultAnim = "Dash";
     
-    private final int moveSpeed = GameConfig.DIO_MOVE_SPEED;// 5 pixels per frame
+    private final int moveSpeed = Config_Game.DIO_MOVE_SPEED;// 5 pixels per frame
     
     //Storing death location
     private int dieX, dieY;
@@ -490,10 +475,10 @@ public class Dio extends Player
         String[] animNames = {"Idle", "Wry", "Dash", "High", "Intro","Scratch", "Roll","Lose", "WalkLeft", "WalkRight"};
         for (String name : animNames) {
             // Parameters: Folder name
-            animations.put(name, new Animator("Dio", name, GameConfig.DIO_BASE_SCALE));
+            animations.put(name, new Animator("Dio", name, Config_Game.DIO_BASE_SCALE));
         }
         //Some animations use custom speeds: e.g. scratch is faster
-        animations.put("Scratch", new Animator("Dio","Scratch",3, GameConfig.DIO_BASE_SCALE));
+        animations.put("Scratch", new Animator("Dio","Scratch",3, Config_Game.DIO_BASE_SCALE));
 
         // 2. Set the starting animation
         setAnimation("Dash");
@@ -516,6 +501,7 @@ public class Dio extends Player
      */
     public void setAnimation(String name, int speed) {
     if (getWorld() == null) return; 
+    if (isDead && !name.equals("Lose")) return;
     if (animations.containsKey(name)) {
         animations.get(name).setSpeed(speed); // Update the speed
         setAnimation(name);                   // Call the original logic to switch
@@ -537,7 +523,7 @@ public class Dio extends Player
         setImage(currentAnimator.getCurrentFrame());
         
         //Check if we are in a timed, temporary sequence
-        if(activeTimer != null){
+        if(!isDead &&activeTimer != null){
             activeTimer.update((MyWorld)getWorld());
             if(activeTimer.isExpired()){
                 activeTimer = null;
@@ -626,7 +612,7 @@ public class Dio extends Player
      */
     protected void onPauseUpdate(MyWorld world) {
         if (!bannerSpawned) {
-            world.addObject(new Banner(BossConfig.DIO), 1120, 200);
+            world.addObject(new Banner(BossConfig.DIO), Config_Game.s(1120), Config_Game.s(200));
             bannerSpawned = true;
             playTimedAnimation("Wry", highTimer);
         }
@@ -724,7 +710,7 @@ public class Exclaimation extends Actor
     private Animator exclaimAnim;
     
     public Exclaimation(){
-        exclaimAnim = new Animator("symbols", "exclaimation", 0.1 * GameConfig.SCALE);
+        exclaimAnim = new Animator("symbols", "exclaimation", 0.1 * Config_Game.SCALE);
         lifeTimer.start();
     }
     public void act()
@@ -947,18 +933,17 @@ FILE: ./ScrollingRoad.java
 import greenfoot.*;
 
 public class ScrollingRoad extends Actor {
-    private static final int SPEED = 5;//Moves 5 pixels per frame
-    private int width = GameConfig.ROAD_WIDTH;
+    private static final int SPEED = Config_Game.ROAD_SCROLL_SPEED;//Moves 5 pixels per frame
+    private int width = Config_Game.WORLD_WIDTH;
     // THE LANE MAP: Other classes (like SpawnManager) can use this!
     // For a 400px height with 5 lanes, centers are: 40, 120, 200, 280, 360
 
     public ScrollingRoad() {
-        this.width = 600;
         drawPlaceholderRoad();
     }
 
     private void drawPlaceholderRoad() {
-        GreenfootImage img = new GreenfootImage(GameConfig.ROAD_WIDTH, GameConfig.ROAD_HEIGHT);
+        GreenfootImage img = new GreenfootImage(Config_Game.WORLD_WIDTH, Config_Game.WORLD_HEIGHT);
         
         // 1. Draw Asphalt
         img.setColor(new Color(50, 50, 50));
@@ -966,12 +951,12 @@ public class ScrollingRoad extends Actor {
         
         // 2. Draw Lane Lines
         img.setColor(Color.YELLOW);
-        for (int i = 1; i < GameConfig.LANES.length; i++) {
+        for (int i = 1; i < Config_Game.LANES.length; i++) {
             //Lane locations are stored in game config
-            int lineY = (GameConfig.LANES[i] + GameConfig.LANES[i-1]) / 2;
+            int lineY = (Config_Game.LANES[i] + Config_Game.LANES[i-1]) / 2;
             // Draw dashed lines(they are scaled by game config too)
-            for (int x = 0; x < width; x += GameConfig.s(40)) {
-                img.fillRect(x, lineY - 2, GameConfig.s(20), GameConfig.s(4));
+            for (int x = 0; x < width; x += Config_Game.s(40)) {
+                img.fillRect(x, lineY - 2, Config_Game.s(20), Config_Game.s(4));
             }
         }
         setImage(img);
@@ -1198,40 +1183,32 @@ FILE: ./Banner.java
 ==================================================
 
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
-//I imported arraylist for the list of overlay items
 import java.util.List;
 import java.util.ArrayList;
 
 /**
- * Write a description of class BanBanner here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
+ * Professional Scaled Banner System.
+ * Every dimension and speed is now linked to Config_Game.SCALE.
  */
-public class Banner extends Actor{
+public class Banner extends Actor {
 
-    /**
-     * Act - do whatever the BanBanner wants to do. This method is called whenever
-     * the 'Act' or 'Run' button gets pressed in the environment.
-     */
     // 0: entering 1: in the middle 2: exiting 
     private int state = 0;
-    //How long the banner has been displayed
     private int timer = 0;
-    //Storing the images
+    
     private GreenfootImage baseImage;
-    //Control the speed
-    private double speed = -12.0;
-    //Control play sound so that only once is played
+    
+    // Control the speed - Scaled based on global SCALE
+    private double speed = -12.0 * Config_Game.SCALE;
+    
     private boolean playedSound = false;
-    //Boss configurations
     private BossConfig config;
-    //a private class to store overlay items on the banner (like figure or text)
     
     public Banner(BossConfig config){
         this.config = config;
         
-        baseImage = new GreenfootImage(810,150);
+        // Scaled base image size
+        baseImage = new GreenfootImage(Config_Game.s(810), Config_Game.s(150));
         baseImage.setColor(config.bgColor);
         baseImage.fill();
         
@@ -1239,6 +1216,7 @@ public class Banner extends Actor{
             sprites.add(s);
         }
         
+        // Initial height (150) must be base height
         render(150);
     }
     
@@ -1247,35 +1225,40 @@ public class Banner extends Actor{
         int offsetX;
         int offsetY;
         
-        public SpriteOverlay(String fileName, int w, int h,int x,int y){
+        public SpriteOverlay(String fileName, int w, int h, int x, int y){
             this.image = new GreenfootImage(fileName);
-            this.image.scale(w,h);
-            this.offsetX = x;
-            this.offsetY = y;
+            // Scale the overlay sprites as they are loaded
+            this.image.scale(Config_Game.s(w), Config_Game.s(h));
+            // Scale the offsets
+            this.offsetX = Config_Game.s(x);
+            this.offsetY = Config_Game.s(y);
         }
     }
-    //Make an arraylist of overlay items as they may be mutilples of them
+
     private List<SpriteOverlay> sprites = new ArrayList<>();
     
     private void render (int currentHeight){
-        render(currentHeight,255);
+        render(currentHeight, 255);
     }
-    private void render (int currentHeight,int alpha){
-        //Set base image height
-        GreenfootImage canvas = new GreenfootImage(1000,400);
-        //trying transparency
+
+    private void render (int currentHeight, int alpha){
+        // Scale the canvas buffer
+        GreenfootImage canvas = new GreenfootImage(Config_Game.s(1000), Config_Game.s(400));
         canvas.setColor(new Color(0,0,0,0));
         canvas.fill();
         
-        //Set background
         Color c = config.bgColor;
-        int bgH = Math.max(1, currentHeight);
-        int bgW = 900;
+        
+        // Scale background dimensions
+        int bgH = Math.max(1, Config_Game.s(currentHeight));
+        int bgW = Config_Game.s(900);
         int bgX = (canvas.getWidth() - bgW) / 2;
         int bgY = (canvas.getHeight() - bgH) / 2;
+        
         canvas.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha));
         canvas.fillRect(bgX, bgY, bgW, bgH);
-        // Set sprite
+
+        // Set sprites - offsets are already scaled in the SpriteOverlay constructor
         for (SpriteOverlay s : sprites) {
             int drawX = canvas.getWidth()/2 - s.image.getWidth()/2 + s.offsetX;
             int drawY = canvas.getHeight()/2 - s.image.getHeight()/2 + s.offsetY;
@@ -1284,9 +1267,9 @@ public class Banner extends Actor{
 
         setImage(canvas);
     }
-    public void act(){
 
-        if(state ==0){
+    public void act(){
+        if(state == 0){
             slideIn();
         }
         else if(state == 1){
@@ -1296,67 +1279,79 @@ public class Banner extends Actor{
             slideOut();
         }
     }
+
     private void slideIn(){
         if (!playedSound){
             playRandomSound();
             playedSound = true;
         }
-        int dist = 400-getX();
-        if(Math.abs(dist)<=4){
-            setLocation(400,getY());
+        
+        // Scaled target X coordinate (400)
+        int targetX = Config_Game.s(400);
+        int dist = targetX - getX();
+        
+        if(Math.abs(dist) <= Config_Game.s(4)){
+            setLocation(targetX, getY());
             state = 1;
         }
         else{
-            int step = (int)(dist*0.12);
+            int step = (int)(dist * 0.12);
             if(step == 0){
-                if(dist>0){
-                    step = 1;
-                }
-                else{
-                    step = -1;
-                }
+                step = (dist > 0) ? 1 : -1;
             }
-            setLocation(getX()+step,getY());
+            setLocation(getX() + step, getY());
         }
     }
     
     private void hold(){
-        //Slowing down in the negative direction
-        speed += 0.4;
-        setLocation(getX()+((int)speed),getY());
-        //Resize the image
-        int d = getX()-200;
-        double ratio = d/200.0;
-        int newHeight = 30 + (int)(120*ratio);
+        // Acceleration scaled by global SCALE
+        speed += (0.4 * Config_Game.SCALE);
+        setLocation(getX() + ((int)speed), getY());
+        
+        // Resizing logic - targets are scaled
+        int startPoint = Config_Game.s(200);
+        int d = getX() - startPoint;
+        double ratio = d / (double)startPoint;
+        
+        // Scale the animated heights
+        int newHeight = Config_Game.s(30) + (int)(Config_Game.s(120) * ratio);
         render(newHeight);
+
         if(speed >= 0){
             state = 2;
             speed = 0;
         }
-        
     }
+
     private void slideOut(){
-        //Increasing speed in the positive direction
-        speed += 1;
-        setLocation(getX()+(int)speed,getY());
-        //Resize the image
-        int d = getX() -200;
-        double ratio = d/200.0;
-        int newHeight = 30 + (int)(120*ratio);
-        int alpha = (int)(255 * (1.0 - ratio/4));
+        // Increasing speed scaled by global SCALE
+        speed += (1.0 * Config_Game.SCALE);
+        setLocation(getX() + (int)speed, getY());
+        
+        // Resizing logic - targets are scaled
+        int startPoint = Config_Game.s(200);
+        int d = getX() - startPoint;
+        double ratio = d / (double)startPoint;
+        
+        int newHeight = Config_Game.s(30) + (int)(Config_Game.s(120) * ratio);
+        int alpha = (int)(255 * (1.0 - ratio/4.0));
+        
         if (alpha < 0) alpha = 0;
         if (alpha > 255) alpha = 255;
-        render(newHeight,alpha);
-        if (getX() > getWorld().getWidth() + 600) {
-        getWorld().removeObject(this);
+        
+        render(newHeight, alpha);
+        
+        // Removal check - coordinate scaled
+        if (getX() > getWorld().getWidth() + Config_Game.s(600)) {
+            getWorld().removeObject(this);
         }   
     }
+
     public void playRandomSound() {
-    String soundsKey = config.soundsKey;
-    AudioManager.playPool(soundsKey);
+        String soundsKey = config.soundsKey;
+        AudioManager.playPool(soundsKey);
     }
 }
-
 
 
 ==================================================
@@ -1379,8 +1374,8 @@ public class PausedState implements GameState
     public void enter(MyWorld world){
         //The game is paused
         //We will show something like a "GAME PAUSED" banner, but currently its empty
-        UIText title = new UIText("PAUSED", 80, Color.RED);
-        addUI(world, title, world.getWidth()/2, 150);
+        UIText title = new UIText("PAUSED", Config_Game.s(80), Color.RED);
+        addUI(world, title, world.getWidth()/2, Config_Game.s(150));
 
     }
     
@@ -1416,64 +1411,48 @@ FILE: ./PlayingState.java
 ==================================================
 
 import greenfoot.*;
-/**
- * Playing state is the default state of game running.
- * 
- * The GameStateManager can add this state to its stack, and call its methods
- */
+
 public class PlayingState implements GameState
 {
-    //A spawn manager will handle all spawning problems
     private SpawnManager spawnManager;
-    
-    //UI Components
     private UIText scoreDisplay;
+
     public void enter(MyWorld world){
-        //The normal game running: spawns players, reset timers, play music etc.
+        ScoreManager.reset(); 
+        AudioManager.playLoop("dio_bgm"); 
         
-        ScoreManager.reset(); //Reset score
-        AudioManager.playLoop("dio_bgm"); //Play bgm
-        
-        world.addObject(new ScrollingRoad(), 300, 200);//Add the scrolling road two times
-        world.addObject(new ScrollingRoad(), 900, 200);
-        //Sample: this is how you call some basic actors
-        
+        // Road placement - world.getWidth() is already scaled, so this math stays clean!
+        world.addObject(new ScrollingRoad(), world.getWidth() / 2, world.getHeight() / 2);
+        world.addObject(new ScrollingRoad(), world.getWidth() + (world.getWidth() / 2), world.getHeight() / 2);
+
+        // DIO starting position must be scaled
         Dio dio = new Dio();
-        world.addObject(dio,80,80);
+        world.addObject(dio, Config_Game.s(80), Config_Game.s(80));
         
         spawnManager = new SpawnManager();
 
-        scoreDisplay = new UIText("SCORE: 0", 30, Color.BLACK);
-        world.addObject(scoreDisplay, 100, 30);
-        //Sample: this is how you call a banner
-        //addObject(new Banner(BossConfig.DIO), 1120, 200);
+        // Score UI size and position must be scaled
+        scoreDisplay = new UIText("SCORE: 0", Config_Game.s(30), Color.BLACK);
+        world.addObject(scoreDisplay, Config_Game.s(100), Config_Game.s(30));
     }
     
     public void update(MyWorld world){
-        //Handle normal game logic, like spawning obstacles, movement logics etc.
-        
-        //Sample of swithicng state: click "p" to pause. But we can also use a button
         if("w".equals(Greenfoot.getKey())){
             world.getGSM().pushState(new PausedState());
         }
         spawnManager.update(world);
-        //Update score display
         scoreDisplay.setText("SCORE: " + ScoreManager.getScore());
-
     }
     
     public void exit(MyWorld world){
-        //Clean things up as we leave this state.
-        AudioManager.stop("dio_bgm"); //Stop bgm
+        AudioManager.stop("dio_bgm");
         world.removeObjects(world.getObjects(null));
     }
     
-    //Getter method for spawn manager
     public SpawnManager getSpawnManager() {
         return spawnManager;
     }
 }
-
 
 
 ==================================================
@@ -1649,17 +1628,17 @@ public class SpawnManager
     
     //== Difficulty Settings ==
     private int difficultyLevel = 0;
-    private int levelUpTime = GameConfig.LEVEL_UP_TIME;//Level up every 5 seconds
+    private int levelUpTime = Config_Game.LEVEL_UP_TIME;//Level up every 5 seconds
     
     //Control Roadroller rate
-    private int roadrollerRate = GameConfig.ROADROLLER_RATE;// number of frames for a car
-    private final int roadrollerMin = GameConfig.ROADROLLER_MIN_RATE;
+    private int roadrollerRate = Config_Game.ROADROLLER_RATE;// number of frames for a car
+    private final int roadrollerMin = Config_Game.ROADROLLER_MIN_RATE;
     
     //Control train rate
-    private int trainRate = GameConfig.TRAIN_RATE;// number of frames for a car, decreass with difficulty
-    private final int trainMin = GameConfig.TRAIN_MIN_RATE;
-    private int trainSpeed = 25;//Increases with difficulty
-    private final int trainSpeedMax = GameConfig.TRAIN_MAX_SPEED;
+    private int trainRate = Config_Game.TRAIN_RATE;// number of frames for a car, decreass with difficulty
+    private final int trainMin = Config_Game.TRAIN_MIN_RATE;
+    private int trainSpeed = Config_Game.TRAIN_MAX_SPEED;//Increases with difficulty
+    private final int trainSpeedMax = Config_Game.TRAIN_MAX_SPEED;
     
     //Unnecessary boolean 
     private boolean scorelessObstacle = false;
@@ -1698,14 +1677,19 @@ public class SpawnManager
 
     private void spawnTrain(MyWorld world, int speed) {
         int spawnY = getRandomLane();
-        // The Train logic is kept in one place
-        world.addObject(new Exclaimation(), world.getWidth() - 20, spawnY);
-        world.addObject(new PathWarning(world.getWidth(), 40), world.getWidth() / 2, spawnY);
-        world.addObject(new Train(speed), world.getWidth() + 50, spawnY);
+        
+        int pathHeight = Config_Game.LANE_HEIGHT; 
+        int exclaimXOffset = Config_Game.s(20);
+        int trainXOffset = Config_Game.s(50);
+        // The Train spawning logic is kept in one place:
+        //The !, the path warning, and the actual train 
+        world.addObject(new Exclaimation(), world.getWidth() - exclaimXOffset, spawnY);
+        world.addObject(new PathWarning(world.getWidth(), pathHeight), world.getWidth() / 2, spawnY);
+        world.addObject(new Train(speed), world.getWidth() + trainXOffset, spawnY);
     }
 
     private int getRandomLane() {
-        return GameConfig.LANES[Greenfoot.getRandomNumber(GameConfig.LANES.length)];
+        return Config_Game.LANES[Greenfoot.getRandomNumber(Config_Game.LANES.length)];
     }
 
 }

@@ -8,9 +8,9 @@ import java.util.HashMap; // Hash map for animation with its animator...
 public class Dio extends Player
 {
     //A hashmap(dictionary) of animations with key: name and value: the corresponding animator
-    private HashMap<String, Animator> animations = new HashMap<>();
+    private HashMap<String, Mgr_Animator> animations = new HashMap<>();
     //The current animationor and action name it takes in
-    private Animator currentAnimator;
+    private Mgr_Animator currentAnimator;
     private String currentAnimName = "";
     
     
@@ -23,7 +23,7 @@ public class Dio extends Player
     private GameTimer activeTimer = null;
     private String defaultAnim = "Dash";
     
-    private final int moveSpeed = GameConfig.DIO_MOVE_SPEED;// 5 pixels per frame
+    private final int moveSpeed = Config_Game.DIO_MOVE_SPEED;// 5 pixels per frame
     
     //Storing death location
     private int dieX, dieY;
@@ -37,10 +37,10 @@ public class Dio extends Player
         String[] animNames = {"Idle", "Wry", "Dash", "High", "Intro","Scratch", "Roll","Lose", "WalkLeft", "WalkRight"};
         for (String name : animNames) {
             // Parameters: Folder name
-            animations.put(name, new Animator("Dio", name, GameConfig.DIO_BASE_SCALE));
+            animations.put(name, new Mgr_Animator("Dio", name, Config_Game.DIO_BASE_SCALE));
         }
         //Some animations use custom speeds: e.g. scratch is faster
-        animations.put("Scratch", new Animator("Dio","Scratch",3, GameConfig.DIO_BASE_SCALE));
+        animations.put("Scratch", new Mgr_Animator("Dio","Scratch",3, Config_Game.DIO_BASE_SCALE));
 
         // 2. Set the starting animation
         setAnimation("Dash");
@@ -109,7 +109,7 @@ public class Dio extends Player
             }
             // 2. Check if the time is up
             if (deathTimer.isExpired()) {
-                world.getGSM().changeState(new GameOverState());
+                world.getGSM().changeState(new State_GameOver());
             }
         } 
             
@@ -141,10 +141,8 @@ public class Dio extends Player
         MyWorld world = (MyWorld) getWorld();
         if (isDead) return;
         isDead = true;
-        SadFace sadFace = new SadFace();
-        getWorld().addObject(sadFace,world.getWidth()/2, world.getHeight()/2);
         setAnimation("Lose");
-        AudioManager.playPool("dioLostVoices");
+        Mgr_Audio.playPool("dioLostVoices");
         //Set death location
         dieX = getX();
         dieY = getY();
@@ -174,7 +172,7 @@ public class Dio extends Player
      */
     protected void onPauseUpdate(MyWorld world) {
         if (!bannerSpawned) {
-            world.addObject(new Banner(BossConfig.DIO), GameConfig.s(1120), GameConfig.s(200));
+            world.addObject(new Banner(Config_Boss.DIO), Config_Game.s(1120), Config_Game.s(200));
             bannerSpawned = true;
             playTimedAnimation("Wry", highTimer);
         }
