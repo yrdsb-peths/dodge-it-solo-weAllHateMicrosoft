@@ -32,6 +32,13 @@ public class GameConfig {
     public static final int TRAIN_SPEED = s(25);//Train moves at 25 pixesl per frame by default
     public static final int TRAIN_MAX_SPEED = s(60);//Train can move at 60 pixels per frame at its peak
       
+    
+    // Rewind Time Settings
+    
+    public static final int MAX_REWIND_TIME = 360; //6 seconds
+    public static final int REWIND_TIME = 120; // 2 seconds
+    
+    
     // Road & Lanes
     public static final int ROAD_SCROLL_SPEED = s(5);//The background "roads" moves at 5 pixels per second
     // We calculate lanes based on the scaled world height

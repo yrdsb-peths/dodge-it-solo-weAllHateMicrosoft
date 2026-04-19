@@ -6,8 +6,8 @@ import greenfoot.*;
 public class Time_RewindManager {
     
     // Public so UI_RewindBar can read them
-    public static final int MAX_HISTORY = 360;       // 15 seconds at 60fps
-    public static final int REWIND_COST_FRAMES = 120; // 2 seconds per use
+    public static final int MAX_HISTORY = GameConfig.MAX_REWIND_TIME;       // 15 seconds at 60fps (360)
+    public static final int REWIND_COST_FRAMES = GameConfig.REWIND_TIME; // 2 seconds per use
     private static final int REWIND_SPEED = 3;        // frames popped per tick (4x speed)
     
     private ArrayDeque<Time_FrameSnapshot> history = new ArrayDeque<>();
