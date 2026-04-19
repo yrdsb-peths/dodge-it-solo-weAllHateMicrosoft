@@ -1,4 +1,5 @@
 import greenfoot.*;
+import java.util.Random;
 /**
  * Write a description of class SpawnManager here.
  * 
@@ -28,6 +29,12 @@ public class SpawnManager
     //Unnecessary boolean 
     private boolean scorelessObstacle = false;
     
+    private int masterSeed; //A master seed is used so that game reverse can be exactly replicated
+    
+    
+    public SpawnManager() {
+        masterSeed = Greenfoot.getRandomNumber(32052320);
+    }
     public void update(MyWorld world){
         globalTimer++; 
         //Notice: this timer is exclusive to spawn manager, and only increases
@@ -61,31 +68,24 @@ public class SpawnManager
     }
 
     private void spawnTrain(MyWorld world, int speed) {
-        int spawnY = getRandomLane();
+        int spawnY = getRandomLane(); 
         
         int pathHeight = GameConfig.LANE_HEIGHT; 
         int exclaimXOffset = GameConfig.s(20);
         int trainXOffset = GameConfig.s(50);
-        // The Train spawning logic is kept in one place:
-        //The !, the path warning, and the actual train 
+        
         world.addObject(new Exclaimation(), world.getWidth() - exclaimXOffset, spawnY);
         world.addObject(new PathWarning(world.getWidth(), pathHeight), world.getWidth() / 2, spawnY);
         world.addObject(new Train(speed), world.getWidth() + trainXOffset, spawnY);
     }
 
     private int getRandomLane() {
-        return GameConfig.LANES[Greenfoot.getRandomNumber(GameConfig.LANES.length)];
+        return GameConfig.LANES[GameRNG.getRandomNumber(GameConfig.LANES.length)];
     }
     
     
     
-    
-    
-    
-    
-    
-    
-    
+
     //placeholder methods to prevent rewind manager form screaming
     //Currently it doesnt consider the rate probably
     // --- GETTERS (For Recording) ---

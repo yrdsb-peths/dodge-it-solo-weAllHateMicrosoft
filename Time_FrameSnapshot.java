@@ -8,14 +8,16 @@ public class Time_FrameSnapshot {
     public int trainRate;
     public final int spawnTimer;
     public final int difficultyTimer;
+    public final long rngState;//Stores the RNG
     
     public Time_FrameSnapshot(List<Time_ActorMemento> actorStates, int score, 
-                          int spawnTimer, int difficultyTimer,int rRate, int tRate) {
+                          int spawnTimer, int difficultyTimer,int rRate, int tRate, long rngState) {
         this.actorStates = actorStates;
         this.score = score;
         this.spawnTimer = spawnTimer;
         this.difficultyTimer = difficultyTimer;
         this.roadrollerRate = rRate;
         this.trainRate = tRate;
+        this.rngState = rngState;
     }
 }

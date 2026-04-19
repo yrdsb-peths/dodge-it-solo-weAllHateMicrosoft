@@ -10,6 +10,9 @@ public class PlayingState implements GameState {
     private FX_RewindOverlay rewindOverlay; // visual effect during rewind
     
     public void enter(MyWorld world) {
+        
+        GameRNG.randomize();//Sets a random seed for the game: its consistent
+        
         ScoreManager.reset();
         AudioManager.playLoop("dio_bgm");
         

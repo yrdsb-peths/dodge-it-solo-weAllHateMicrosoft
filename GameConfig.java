@@ -22,7 +22,7 @@ public class GameConfig {
         //If you dont know why an ambulance is this powerful, you probably have to ask Kira Yoshkage, i think he knows the answer.
     
     //b. Difficulty settings
-    public static final int LEVEL_UP_TIME = 300;//Game gets more difficulty per 300 frame
+    public static final int LEVEL_UP_TIME = 200;//Game gets more difficulty per 200 frame
     public static final int ROADROLLER_RATE = 60;// number of frames for a car, decreass with difficulty;
     public static final int ROADROLLER_MIN_RATE= 15;
     public static final int ROADROLLER_SPEED = s(6);//Roadroller moves 6 frames per second

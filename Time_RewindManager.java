@@ -30,7 +30,8 @@ public class Time_RewindManager {
             spawnManager.getSpawnTimer(),
             spawnManager.getDifficultyTimer(),
             spawnManager.getRoadrollerRate(),
-            spawnManager.getTrainRate()
+            spawnManager.getTrainRate(),
+            GameRNG.getState() //RNG state
         ));
         
         if (history.size() > MAX_HISTORY) history.pollLast();
@@ -73,6 +74,7 @@ public class Time_RewindManager {
         // 1. Restore global state
         ScoreManager.setScore(snap.score);
         spawnManager.restoreState(snap.spawnTimer, snap.roadrollerRate, snap.trainRate);
+        GameRNG.restoreState(snap.rngState);//Restores the RNG
         
         // 2. Which actors should exist?
         List<Actor> shouldExist = new ArrayList<>();
