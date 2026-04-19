@@ -22,7 +22,7 @@ public class SpawnManager
     //Control train rate
     private int trainRate = GameConfig.TRAIN_RATE;// number of frames for a car, decreass with difficulty
     private final int trainMin = GameConfig.TRAIN_MIN_RATE;
-    private int trainSpeed = GameConfig.TRAIN_MAX_SPEED;//Increases with difficulty
+    private int trainSpeed = GameConfig.TRAIN_SPEED;//Increases with difficulty
     private final int trainSpeedMax = GameConfig.TRAIN_MAX_SPEED;
     
     //Unnecessary boolean 
@@ -52,7 +52,7 @@ public class SpawnManager
         
         if(trainRate > trainMin) trainRate -= 5;
         
-        if(trainSpeed > trainSpeedMax) trainSpeed -= 5;
+        if(trainSpeed > trainSpeedMax) trainSpeed += 5;
     }
     
     private void spawnRoadroller(MyWorld world) {
@@ -76,5 +76,40 @@ public class SpawnManager
     private int getRandomLane() {
         return GameConfig.LANES[Greenfoot.getRandomNumber(GameConfig.LANES.length)];
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    //placeholder methods to prevent rewind manager form screaming
+    //Currently it doesnt consider the rate probably
+    // --- GETTERS (For Recording) ---
+    public int getSpawnTimer() { return globalTimer; }
+    public int getRoadrollerRate() { return roadrollerRate; }
+    public int getTrainRate() { return trainRate; }
+    // Usually difficulty depends on the global timer, but if you have a 
+    // separate difficultyLevel variable, add a getter for it too.
+    // --- SETTERS (For Rewinding) ---
+    public void setSpawnTimer(int time) { this.globalTimer = time; }
+    
+    public void setRoadrollerRate(int rate) { this.roadrollerRate = rate; }
+    
+    public void setTrainRate(int rate) { this.trainRate = rate; }
+
+    // If you want one setter for everything difficulty-related:
+    public void restoreState(int timer, int rRate, int tRate) {
+        this.globalTimer = timer;
+        this.roadrollerRate = rRate;
+        this.trainRate = tRate;
+    }
+    
+    public int getDifficultyTimer() { return levelUpTime; }
+    
+    public void setDifficultyTimer(int l) { this.levelUpTime = l; }
 
 }

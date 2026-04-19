@@ -27,5 +27,7 @@ public class ScoreManager {
             highScore = score;
         }
     }
+    
+    public static void setScore(int s) { score = s; }
 
 }

@@ -85,6 +85,11 @@ public class GameStateManager
         return stateClass.isInstance(stateStack.peek());
     }
     
-    
+    /*
+     * Returns the current game state (unless its null)
+     */
+    public GameState peekState() {
+        return stateStack.isEmpty() ? null : stateStack.peek();
+    }
     
 }

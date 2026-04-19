@@ -2,76 +2,103 @@ import greenfoot.*;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
-/*
- * The voice manager can play sounds in two ways:
- * 1. Play a single sound.music
- * 2. Play randomly from a list of sounds
- * 
- * Sample: 
- * AudioManager.play("some_key_of_single_sound"); 
- * AudioManager.playPool"some_key_of_souns_pool); 
- * 
- * 
- * To add new voices:
- * 
- * 1. Add the mp3 file to the sound file, make sure to organise properly
- * 2.a)  loadSound(String key, String file name, int volume) for single sounds
- * 2.b)  loadVoicePool(String key, String array file names, int volume)
- */
-public class AudioManager {
-    // Stores single sounds (BGM, UI clicks)
-    private static HashMap<String, GreenfootSound> sounds = new HashMap<>();
-    
-    // Stores groups of sounds (Voice lines for random selection)
-    private static HashMap<String, List<GreenfootSound>> voicePools = new HashMap<>();
 
-    // Setup method that gets called once the game starts
-    //Loads the files from hard drive into RAM permanently
+public class AudioManager {
+    private static HashMap<String, GreenfootSound> sounds = new HashMap<>();
+    private static HashMap<String, List<GreenfootSound>> voicePools = new HashMap<>();
+    
+    // New: Storage for "Original" volumes
+    private static HashMap<String, Integer> baseVolumes = new HashMap<>();
+    private static HashMap<String, Integer> basePoolVolumes = new HashMap<>();
+    
+    // This remembers which sounds were active before we hit pause
+    private static List<GreenfootSound> activeBeforePause = new ArrayList<>();
+
+    private static int masterVolume = 100; // 0 to 100
+
     public static void init() {
-        // Pre-load background music
-        loadSound("dio_bgm","eye_of_heaven_dio_bgm.mp3", 20);
-        
-        
-        loadSound("lost_bgm","brawl_stars_lost_bgm.mp3", 15);
-        
-        loadSound("car_crash","car_crash.mp3", 20);
-        
-        
-        
-        // Example of a single sound 
-        // loadSound("punch", "sounds/punch.mp3", 70);
+        // Pre-load background music (using 100 as base, we scale it later)
+        loadSound("dio_bgm", "eye_of_heaven_dio_bgm.mp3", 60);
+        loadSound("lost_bgm", "brawl_stars_lost_bgm.mp3", 50);
+        loadSound("car_crash", "car_crash.mp3", 70);
         
         // Pre-load voice pools
-        String[] loseFiles = {"dio_voiceline/dio_lost.mp3", "dio_voiceline/dio_lost2.mp3"};
-        loadVoicePool("dioLostVoices", loseFiles, 20);
         
-        String[] dioBattleCry = {"dio_voiceline/wry.mp3","dio_voiceline/high.mp3", "dio_voiceline/muda_muda.mp3","dio_voiceline/Voicy_Timestop DiegoBrando.mp3"};
-        loadVoicePool("dioBattleCry", dioBattleCry,40);
+        String[] rewind = {
+            "rewind1.mp3"
+        };
+        loadVoicePool("rewind", rewind, 60);
+        
+        String[] loseFiles = {"dio_voiceline/dio_lost.mp3", "dio_voiceline/dio_lost2.mp3"};
+        loadVoicePool("dioLostVoices", loseFiles, 60);
+        
+        String[] dioBattleCry = {
+            "dio_voiceline/wry.mp3", "dio_voiceline/high.mp3", 
+            "dio_voiceline/muda_muda.mp3", "dio_voiceline/Voicy_Timestop DiegoBrando.mp3"
+        };
+        loadVoicePool("dioBattleCry", dioBattleCry, 100);
+        
+        updateAllVolumes(); // Set initial volumes based on master
     }
 
-    //Helper method to load single sounds
     private static void loadSound(String key, String file, int volume) {
         GreenfootSound s = new GreenfootSound(file);
-        s.setVolume(volume);
         sounds.put(key, s);
+        baseVolumes.put(key, volume);
     }
     
-    //Helper method to load multiple sounds
     private static void loadVoicePool(String key, String[] files, int volume) {
         List<GreenfootSound> pool = new ArrayList<>();
         for (String f : files) {
             GreenfootSound s = new GreenfootSound(f);
-            s.setVolume(volume);
             pool.add(s);
         }
         voicePools.put(key, pool);
+        basePoolVolumes.put(key, volume);
     }
 
-    //Methods to play sounds
+    // --- Master Volume Logic ---
+    
+    public static void setMasterVolume(int level) {
+        masterVolume = level;
+        if (masterVolume < 0) masterVolume = 0;
+        if (masterVolume > 100) masterVolume = 100;
+        updateAllVolumes();
+    }
+
+    private static void updateAllVolumes() {
+        // Update single sounds
+        for (String key : sounds.keySet()) {
+            int base = baseVolumes.get(key);
+            sounds.get(key).setVolume((base * masterVolume) / 100);
+        }
+        // Update pools
+        for (String key : voicePools.keySet()) {
+            int base = basePoolVolumes.get(key);
+            for (GreenfootSound s : voicePools.get(key)) {
+                s.setVolume((base * masterVolume) / 100);
+            }
+        }
+    }
+
+    // --- Special Control Logic ---
+
+    /**
+     * Stops everything currently playing.
+     */
+    public static void stopAll() {
+        for (GreenfootSound s : sounds.values()) s.stop();
+        for (List<GreenfootSound> pool : voicePools.values()) {
+            for (GreenfootSound s : pool) s.stop();
+        }
+    }
+
+    // --- Standard Methods ---
+
     public static void play(String key) {
         if (sounds.containsKey(key)) {
             GreenfootSound s = sounds.get(key);
-            if (s.isPlaying()) s.stop(); // Restart if already playing
+            if (s.isPlaying()) s.stop();
             s.play();
         }
     }
@@ -80,27 +107,73 @@ public class AudioManager {
         if (voicePools.containsKey(poolKey)) {
             List<GreenfootSound> pool = voicePools.get(poolKey);
             int index = Greenfoot.getRandomNumber(pool.size());
-            GreenfootSound s = pool.get(index);
-            // This prevents the "Cut-off" because 's' is stored in our Map 
-            // and won't be garbage collected!
-            s.play(); 
+            pool.get(index).play(); 
         }
     }
     
-    //Loop music (used for bgm)
     public static void playLoop(String key) {
         if (sounds.containsKey(key)) {
             GreenfootSound s = sounds.get(key);
-            if (!s.isPlaying()) {
-                s.playLoop();
-            }
+            if (!s.isPlaying()) s.playLoop();
         }
     }
     
-    //Stops music
     public static void stop(String key) {
+        if (sounds.containsKey(key)) sounds.get(key).stop();
+    }
+    
+     /**
+     * Pauses a specific looping sound.
+     */
+    public static void pause(String key) {
         if (sounds.containsKey(key)) {
-            sounds.get(key).stop();
+            sounds.get(key).pause();
+        }
+    }
+
+    /**
+     * Resumes or Starts a looping sound.
+     */
+    public static void resume(String key) {
+        if (sounds.containsKey(key)) {
+            sounds.get(key).playLoop();
+        }
+    }
+    
+    /**
+     * UNIVERSAL SOUND CONTROL (With Memory)
+     * @param pause true to pause active sounds, false to resume ONLY those sounds.
+     */
+    public static void setAllSoundsPaused(boolean pause) {
+        if (pause) {
+            // 1. CLEAR memory first (just in case)
+            activeBeforePause.clear();
+
+            // 2. Scan all single sounds (BGM, etc.)
+            for (GreenfootSound s : sounds.values()) {
+                if (s.isPlaying()) {
+                    activeBeforePause.add(s);
+                    s.pause();
+                }
+            }
+
+            // 3. Scan all pools
+            for (List<GreenfootSound> pool : voicePools.values()) {
+                for (GreenfootSound s : pool) {
+                    if (s.isPlaying()) {
+                        activeBeforePause.add(s);
+                        s.pause();
+                    }
+                }
+            }
+        } 
+        else {
+            // 4. RESUME: Only play the ones we actually paused
+            for (GreenfootSound s : activeBeforePause) {
+                s.play(); 
+            }
+            // 5. Clear the memory so we don't accidentally resume them again later
+            activeBeforePause.clear();
         }
     }
 }

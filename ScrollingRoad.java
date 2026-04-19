@@ -1,6 +1,7 @@
 import greenfoot.*;
 
-public class ScrollingRoad extends Actor {
+
+public class ScrollingRoad extends Actor implements Time_Snapshottable {
     private static final int SPEED = GameConfig.ROAD_SCROLL_SPEED;//Moves 5 pixels per frame
     private int width = GameConfig.WORLD_WIDTH;
     // THE LANE MAP: Other classes (like SpawnManager) can use this!
@@ -33,7 +34,8 @@ public class ScrollingRoad extends Actor {
     public void act() {
         // Self-management: Only move if the game is actually "playing"
         MyWorld world = (MyWorld) getWorld();
-        if (world.getGSM().isState(PlayingState.class)) {
+        // ONLY scroll forward if we are in PlayingState AND NOT rewinding
+        if (world.getGSM().isState(PlayingState.class) && !world.isRewinding()) {
             scroll();
         }
     }
@@ -45,5 +47,15 @@ public class ScrollingRoad extends Actor {
         if (getX() <= -width / 2) {
             setLocation(getX() + width * 2, getY());
         }
+    }
+    
+    // --- TIME MACHINE ---
+    public Time_ActorMemento captureState() {
+        // We just save position. No custom data needed (null).
+        return new Time_ActorMemento(this, getX(), getY(), null);
+    }
+
+    public void restoreState(Time_ActorMemento m) {
+        // Manager handles position automatically. Nothing else to restore!
     }
 }

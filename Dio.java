@@ -5,7 +5,7 @@ import java.util.HashMap; // Hash map for animation with its animator...
  *   (only one object) so static methods are used for convenience. 
  *   (a pro programmar would probably spit at me for that statement)
  */
-public class Dio extends Player
+public class Dio extends Player implements Time_Snapshottable
 {
     //A hashmap(dictionary) of animations with key: name and value: the corresponding animator
     private HashMap<String, Animator> animations = new HashMap<>();
@@ -108,7 +108,7 @@ public class Dio extends Player
                 shake();
             }
             // 2. Check if the time is up
-            if (deathTimer.isExpired()) {
+            if (deathTimer.isExpired()&& !world.isRewinding()) {
                 world.getGSM().changeState(new GameOverState());
             }
         } 
@@ -212,5 +212,47 @@ public class Dio extends Player
             // 3. Return to the exact center when finished
             setLocation(dieX, dieY);
         }
+    }
+
+    
+    //***********************************************************
+    //=========Tme Machine Stuff For Time Rewinding==============
+        private static class DioData {
+        boolean isDead;
+        String animName;
+        int deathTimerRemaining;
+        boolean deathTimerActive;
+        
+        DioData(boolean isDead, String animName, int deathTimerRemaining, boolean active) {
+            this.isDead = isDead;
+            this.animName = animName;
+            this.deathTimerRemaining = deathTimerRemaining;
+            this.deathTimerActive = active;
+        }
+    }
+    
+    public Time_ActorMemento captureState() {
+        return new Time_ActorMemento(this, getX(), getY(),
+            new DioData(isDead, currentAnimName,
+                        deathTimer.getRemainingFrames(),
+                        deathTimer.isActive()));
+    }
+    
+    public void restoreState(Time_ActorMemento m) {
+        DioData d = (DioData) m.customData;
+        
+        // Check if we're being revived
+        if (this.isDead && !d.isDead) {
+            // Remove the sad face that appeared on death
+            if (getWorld() != null) {
+                getWorld().removeObjects(getWorld().getObjects(SadFace.class));
+            }
+        }
+        
+        this.isDead = d.isDead;
+        // Don't forcibly switch to death anim if alive
+        if (!isDead) setAnimation(d.animName);
+        deathTimer.setRemainingFrames(d.deathTimerRemaining);
+        if (d.deathTimerActive) deathTimer.start(); else deathTimer.stop();
     }
 }

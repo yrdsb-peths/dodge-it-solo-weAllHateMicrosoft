@@ -48,4 +48,12 @@ public class MyWorld extends World {
         return gsm;
     }
     
+    public boolean isRewinding() {
+        GameState s = gsm.peekState();
+        if (s instanceof PlayingState) {
+            return ((PlayingState) s).isRewinding();
+        }
+        return false;
+    }
+    
 }

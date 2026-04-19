@@ -121,4 +121,8 @@ public class GameTimer {
     public void forceTick() {
     if (remainingFrames > 0) remainingFrames--;
     }
+    
+    public int getRemainingFrames() { return remainingFrames; }
+    public void setRemainingFrames(int frames) { this.remainingFrames = frames; }
+    public boolean isActive() { return active; }
 }
