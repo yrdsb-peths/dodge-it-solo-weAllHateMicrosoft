@@ -44,6 +44,10 @@ public class AudioManager {
 
     private static void loadSound(String key, String file, int volume) {
         GreenfootSound s = new GreenfootSound(file);
+        //Pre load
+        s.play(); 
+        s.stop();
+        
         sounds.put(key, s);
         baseVolumes.put(key, volume);
     }
@@ -52,6 +56,10 @@ public class AudioManager {
         List<GreenfootSound> pool = new ArrayList<>();
         for (String f : files) {
             GreenfootSound s = new GreenfootSound(f);
+            //Pre-load
+            s.play();
+            s.stop();
+            
             pool.add(s);
         }
         voicePools.put(key, pool);

@@ -136,11 +136,40 @@ public class Dio extends Player implements Time_Snapshottable
             int nextY = getY();
             
             // 3. Update the intended position based on keys
-            if (Greenfoot.isKeyDown("up"))    nextY -= currentSpeed;
-            if (Greenfoot.isKeyDown("down"))  nextY += currentSpeed;
-            if (Greenfoot.isKeyDown("left"))  nextX -= currentSpeed;
-            if (Greenfoot.isKeyDown("right")) nextX += currentSpeed;
-
+            boolean isMoving = false;
+            if (Greenfoot.isKeyDown("up")){
+                nextY -= currentSpeed; isMoving = true;
+            }
+            if (Greenfoot.isKeyDown("down")){
+                nextY += currentSpeed; isMoving = true;
+            }
+            //Snatch the player to the closest road during acceleration
+            // ONLY apply the magnet if Made in Heaven is active AND the player isn't pushing a key
+            if (mihAbility.isActive() && !isMoving) {
+                // Find the closest lane
+                int closestLane = GameConfig.LANES[0];
+                int minDistance = Math.abs(nextY - closestLane);
+                
+                for (int i = 1; i < GameConfig.LANES.length; i++) {
+                    int dist = Math.abs(nextY - GameConfig.LANES[i]);
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        closestLane = GameConfig.LANES[i];
+                    }
+                }
+                
+                // Pull Dio towards the closest lane
+                if (minDistance > 0) {
+                    if (minDistance <= currentSpeed) {
+                        nextY = closestLane; // Snap perfectly to center
+                    } else if (nextY < closestLane) {
+                        nextY += currentSpeed; // Drift down
+                    } else {
+                        nextY -= currentSpeed; // Drift up
+                    }
+                }
+            }
+            
             // 4. Calculate the "No-Submerge" limits
             int halfWidth = getImage().getWidth() / 2;
             int halfHeight = getImage().getHeight() / 2;

@@ -22,7 +22,7 @@ public class FX_Afterimage extends Actor {
 
     public void act() {
         // Fade out
-        alpha -= 10;
+        alpha -= 7;
         if (alpha <= 0) {
             getWorld().removeObject(this);
         } else {
