@@ -19,6 +19,8 @@ public class SpawnManager
     //Control Roadroller rate
     private int roadrollerRate = GameConfig.ROADROLLER_RATE;// number of frames for a car
     private final int roadrollerMin = GameConfig.ROADROLLER_MIN_RATE;
+    private int roadrollerSpeed = GameConfig.ROADROLLER_SPEED; // Manager tracks this now
+    private final int roadrollerSpeedMax = GameConfig.ROADROLLER_MAX_SPEED; 
     
     //Control train rate
     private int trainRate = GameConfig.TRAIN_RATE;// number of frames for a car, decreass with difficulty
@@ -57,6 +59,8 @@ public class SpawnManager
     private void increaseDifficulty(){
         if(roadrollerRate > roadrollerMin) roadrollerRate -= 5;
         
+        if(roadrollerSpeed < roadrollerSpeedMax) roadrollerSpeed += 1;
+        
         if(trainRate > trainMin) trainRate -= 5;
         
         if(trainSpeed > trainSpeedMax) trainSpeed += 5;
@@ -66,7 +70,7 @@ public class SpawnManager
     
     private void spawnRoadroller(MyWorld world) {
         int spawnY = getRandomLane();
-        world.addObject(new Roadroller(), world.getWidth(), spawnY);
+        world.addObject(new Roadroller(roadrollerSpeed), world.getWidth(), spawnY);
     }
 
     private void spawnTrain(MyWorld world, int speed) {

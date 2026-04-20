@@ -17,11 +17,21 @@ public class Roadroller extends Obstacles implements Time_Snapshottable
     private boolean faceLeft = false;
     private boolean resized = false;
     
+    
+    private static int globalSpeed = GameConfig.ROADROLLER_SPEED;
+    private static final int MAX_SPEED = GameConfig.ROADROLLER_MAX_SPEED; // Safety cap
+    
     //Can customise roadroller so that it doesnt give any score
-    public Roadroller(int scoreToAdd) {
-        this(); // Calls the original Roadroller() constructor first
+    public Roadroller(int speed) {
+        this(speed,1); // Calls the original Roadroller() constructor first
+    }
+    
+     public Roadroller(int speed, int scoreToAdd) {
+        this(); // Calls the default constructor to setup the image
+        this.speed = speed; // Assign the speed from SpawnManager!
         this.scoreToAdd = scoreToAdd;
     }
+    
     public Roadroller(){
         GreenfootImage img = new GreenfootImage("obstacles/road_roller.png");
         setImage(img);
@@ -73,17 +83,11 @@ public class Roadroller extends Obstacles implements Time_Snapshottable
         return;
     }
     
-    /*
-    public static void increaseSpeed(int amount){
-        if (speed < maxSpeed)speed+=amount;
-    }
-    */
-    
     // Time machine stuff for time rewinding.
 
     //These are the custom data stored for roadrollers
     private static class RoadrollerData {
-        private static int speed, scoreToAdd;
+        int speed, scoreToAdd;
         RoadrollerData(int speed, int scoreToAdd) {
             this.speed = speed;
             this.scoreToAdd = scoreToAdd;
