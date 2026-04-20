@@ -19,7 +19,8 @@ public class MyWorld extends World {
         
         //Set the order of rendeirng:
         //UI on top, then Dio, then after images, then the roadrollers
-        setPaintOrder(UIText.class, UI_RewindBar.class, FX_RewindOverlay.class, 
+        setPaintOrder(Banner.class, UIText.class, UI_RewindBar.class, FX_RewindOverlay.class, 
+                      Exclaimation.class, PathWarning.class, 
                       Dio.class, FX_Afterimage.class, Obstacles.class, ScrollingRoad.class);
                       
         //Start the game in the playing state

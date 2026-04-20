@@ -38,8 +38,11 @@ public class Roadroller extends Obstacles implements Time_Snapshottable
     }
     
     public void collisionLogic(){
+    
         //I'm really afraid of that null pointer error so this is a safety check.
-        if (getWorld() == null) return; 
+        //Also dont scream when im rewinding
+        MyWorld world = (MyWorld) getWorld();
+        if (getWorld() == null|| world.isRewinding()) return; 
 
         // Get the player directly (no need to use isTouching first, this is faster)
         Player player = (Player) getOneIntersectingObject(Player.class);

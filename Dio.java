@@ -104,12 +104,9 @@ public class Dio extends Player implements Time_Snapshottable
     protected void movementLogic(){
         if (getWorld() == null) return; 
         //TRY TO TRIGGER ABILITY
-        if (Greenfoot.isKeyDown("m")) {
-            AudioManager.play("speed_up_time");
+        if (Greenfoot.isKeyDown(GameConfig.MIH_BUTTON)) {
             mihAbility.activate();
-            
-            //DELETE THIS LATER@!!!
-            Greenfoot.setSpeed(55); 
+             
         }
         if (isDead) {
             MyWorld world = (MyWorld) getWorld();
@@ -167,7 +164,7 @@ public class Dio extends Player implements Time_Snapshottable
     //Die method is public because anyone can tell player to die
     public void die(){
         MyWorld world = (MyWorld) getWorld();
-        if (isDead) return;
+        if (isDead|| world.isRewinding()) return;
         isDead = true;
         SadFace sadFace = new SadFace();
         getWorld().addObject(sadFace,world.getWidth()/2, world.getHeight()/2);

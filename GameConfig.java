@@ -38,6 +38,11 @@ public class GameConfig {
     public static final int MAX_REWIND_TIME = 360; //6 seconds
     public static final int REWIND_TIME = 120; // 2 seconds
     
+    //Buttons
+    
+    public static final String TIME_STOP_BUTTON = "w";//Handled in PlayingState
+    public static final String REWIND_TIME_BUTTON = "r";//Hanlded in PlayingState
+    public static final String MIH_BUTTON = "s";//Handled in Dio
     
     // Road & Lanes
     public static final int ROAD_SCROLL_SPEED = s(5);//The background "roads" moves at 5 pixels per second

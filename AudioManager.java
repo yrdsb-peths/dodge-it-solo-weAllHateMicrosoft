@@ -14,7 +14,7 @@ public class AudioManager {
     // This remembers which sounds were active before we hit pause
     private static List<GreenfootSound> activeBeforePause = new ArrayList<>();
 
-    private static int masterVolume = 100; // 0 to 100
+    private static int masterVolume = 50; // 0 to 100
 
     public static void init() {
         // Pre-load background music (using 100 as base, we scale it later)
@@ -147,33 +147,33 @@ public class AudioManager {
      */
     public static void setAllSoundsPaused(boolean pause) {
         if (pause) {
-            // 1. CLEAR memory first (just in case)
             activeBeforePause.clear();
 
-            // 2. Scan all single sounds (BGM, etc.)
-            for (GreenfootSound s : sounds.values()) {
-                if (s.isPlaying()) {
-                    activeBeforePause.add(s);
-                    s.pause();
-                }
+            // 1. Pause BGM (we want to resume this later)
+            if (sounds.get("dio_bgm").isPlaying()) {
+                activeBeforePause.add(sounds.get("dio_bgm"));
+                sounds.get("dio_bgm").pause();
             }
 
-            // 3. Scan all pools
+            // 2. KILL everything else (One-shots like "crash" or "wry")
+            // We STOP them, not pause, so they don't echo during rewind
+            for (String key : sounds.keySet()) {
+                if (!key.equals("dio_bgm") && sounds.get(key).isPlaying()) {
+                    sounds.get(key).stop();
+                }
+            }
+            
             for (List<GreenfootSound> pool : voicePools.values()) {
                 for (GreenfootSound s : pool) {
-                    if (s.isPlaying()) {
-                        activeBeforePause.add(s);
-                        s.pause();
-                    }
+                    if (s.isPlaying()) s.stop(); 
                 }
             }
         } 
         else {
-            // 4. RESUME: Only play the ones we actually paused
+            // Resume only the BGM
             for (GreenfootSound s : activeBeforePause) {
                 s.play(); 
             }
-            // 5. Clear the memory so we don't accidentally resume them again later
             activeBeforePause.clear();
         }
     }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
  * Professional Scaled Banner System.
  * Every dimension and speed is now linked to GameConfig.SCALE.
  */
+
 public class Banner extends Actor {
 
     // 0: entering 1: in the middle 2: exiting 

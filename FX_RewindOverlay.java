@@ -2,13 +2,18 @@ import greenfoot.*;
 
 public class FX_RewindOverlay extends Actor {
     private int frame = 0;
-    private GreenfootImage screen1;
-    private GreenfootImage screen2;
+    
+    // 1. MAKE THESE STATIC! (This is the magic fix)
+    // Static means they are kept in memory forever, not recreated every time you press R.
+    private static GreenfootImage screen1;
+    private static GreenfootImage screen2;
 
     public FX_RewindOverlay() {
-        // Create the two animation frames ONCE when the effect starts
-        screen1 = createOverlay(false);
-        screen2 = createOverlay(true);
+        // 2. Only draw them if we haven't drawn them yet!
+        if (screen1 == null || screen2 == null) {
+            screen1 = createOverlay(false);
+            screen2 = createOverlay(true);
+        }
         setImage(screen1);
     }
 
@@ -22,7 +27,8 @@ public class FX_RewindOverlay extends Actor {
         }
     }
 
-    private GreenfootImage createOverlay(boolean scanlineOffset) {
+    // Notice we made this method static too!
+    private static GreenfootImage createOverlay(boolean scanlineOffset) {
         int w = GameConfig.WORLD_WIDTH;
         int h = GameConfig.WORLD_HEIGHT;
         GreenfootImage img = new GreenfootImage(w, h);
@@ -38,5 +44,13 @@ public class FX_RewindOverlay extends Actor {
             img.fillRect(0, y, w, GameConfig.s(2));
         }
         return img;
+    }
+    
+    // 3. Pre-load helper so we don't even lag the VERY FIRST time you press R
+    public static void preLoad() {
+        if (screen1 == null) {
+            screen1 = createOverlay(false);
+            screen2 = createOverlay(true);
+        }
     }
 }

@@ -10,7 +10,7 @@ public class Ability_MadeInHeaven {
             
             durationTimer.reset();
             durationTimer.start();
-            //AudioManager.playPool("dioBattleCry"); // Optional: use the battle cry. but probably not DIO
+            AudioManager.play("speed_up_time");
         }
     }
 
