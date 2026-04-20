@@ -14,7 +14,7 @@ public class AudioManager {
     // This remembers which sounds were active before we hit pause
     private static List<GreenfootSound> activeBeforePause = new ArrayList<>();
 
-    private static int masterVolume = 50; // 0 to 100
+    private static int masterVolume = GameConfig.MASTER_VOLUME; // 0 to 100
 
     public static void init() {
         // Pre-load background music (using 100 as base, we scale it later)

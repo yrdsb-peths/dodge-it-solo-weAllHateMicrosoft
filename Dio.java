@@ -3,7 +3,7 @@ import java.util.HashMap; // Hash map for animation with its animator...
 /*
  *   Dio is the player. Although this is a class, this will only be one player 
  *   (only one object) so static methods are used for convenience. 
- *   (a pro programmar would probably spit at me for that statement)
+ *   (a pro programmar would probably spit at me for that statement but wtv)
  */
 public class Dio extends Player implements Time_Snapshottable
 {
@@ -105,8 +105,7 @@ public class Dio extends Player implements Time_Snapshottable
         if (getWorld() == null) return; 
         //TRY TO TRIGGER ABILITY
         if (Greenfoot.isKeyDown(GameConfig.MIH_BUTTON)) {
-            mihAbility.activate();
-             
+            mihAbility.activate(); 
         }
         if (isDead) {
             MyWorld world = (MyWorld) getWorld();
@@ -136,38 +135,11 @@ public class Dio extends Player implements Time_Snapshottable
             int nextY = getY();
             
             // 3. Update the intended position based on keys
-            boolean isMoving = false;
             if (Greenfoot.isKeyDown("up")){
-                nextY -= currentSpeed; isMoving = true;
+                nextY -= currentSpeed;
             }
             if (Greenfoot.isKeyDown("down")){
-                nextY += currentSpeed; isMoving = true;
-            }
-            //Snatch the player to the closest road during acceleration
-            // ONLY apply the magnet if Made in Heaven is active AND the player isn't pushing a key
-            if (mihAbility.isActive() && !isMoving) {
-                // Find the closest lane
-                int closestLane = GameConfig.LANES[0];
-                int minDistance = Math.abs(nextY - closestLane);
-                
-                for (int i = 1; i < GameConfig.LANES.length; i++) {
-                    int dist = Math.abs(nextY - GameConfig.LANES[i]);
-                    if (dist < minDistance) {
-                        minDistance = dist;
-                        closestLane = GameConfig.LANES[i];
-                    }
-                }
-                
-                // Pull Dio towards the closest lane
-                if (minDistance > 0) {
-                    if (minDistance <= currentSpeed) {
-                        nextY = closestLane; // Snap perfectly to center
-                    } else if (nextY < closestLane) {
-                        nextY += currentSpeed; // Drift down
-                    } else {
-                        nextY -= currentSpeed; // Drift up
-                    }
-                }
+                nextY += currentSpeed;
             }
             
             // 4. Calculate the "No-Submerge" limits
@@ -188,7 +160,6 @@ public class Dio extends Player implements Time_Snapshottable
             // 6. Final Move (Only happens once, perfectly smooth)
             setLocation(nextX, nextY);
         }
-        
     }
     //Die method is public because anyone can tell player to die
     public void die(){

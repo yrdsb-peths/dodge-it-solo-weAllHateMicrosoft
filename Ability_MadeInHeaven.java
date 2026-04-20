@@ -1,15 +1,20 @@
 import greenfoot.*;
 
 public class Ability_MadeInHeaven {
-    private GameTimer durationTimer = new GameTimer(6.5, false); // Lasts 6.5 seconds to match the sound effect
+    private GameTimer durationTimer = new GameTimer(4.8, false); // Lasts 6.5 seconds to match the sound effect
     private int afterimageCounter = 0;
-    private final double speedMultiplier = 5; // How much faster?
+    private final double speedMultiplier = 3.5; // How much faster?
+    
+    
+    private final int ACCELERATED_TICK_SPEED = GameConfig.MIH_TICK_SPEED;//Everything moves slow as you speed up
+    private final int NORMAL_TICK_SPEED = GameConfig.NORMAL_TICK_SPEED;
 
     public void activate() {
         if (durationTimer.isExpired() || !durationTimer.isActive()) {
             
             durationTimer.reset();
             durationTimer.start();
+            Greenfoot.setSpeed(ACCELERATED_TICK_SPEED);
             AudioManager.play("speed_up_time");
         }
     }
@@ -27,6 +32,7 @@ public class Ability_MadeInHeaven {
 
         if (durationTimer.isExpired()) {
             durationTimer.stop();
+            Greenfoot.setSpeed(NORMAL_TICK_SPEED);
         }
     }
 

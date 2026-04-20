@@ -16,6 +16,7 @@ public class PlayingState implements GameState {
         ScoreManager.reset();//Resets score.
         AudioManager.playLoop("dio_bgm");//Use Audio MGR to call the background music
         FX_RewindOverlay.preLoad(); // Draws the rewind screens into memory early!
+        Greenfoot.setSpeed(50); //Set Game Tick to Normal
         
         rewindManager = new Time_RewindManager();//Initiate time rewind manager
         

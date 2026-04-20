@@ -23,20 +23,28 @@ public class GameConfig {
     
     //b. Difficulty settings
     public static final int LEVEL_UP_TIME = 200;//Game gets more difficulty per 200 frame
-    public static final int ROADROLLER_RATE = 60;// number of frames for a car, decreass with difficulty;
-    public static final int ROADROLLER_MIN_RATE= 15;
+    public static final int ROADROLLER_RATE = 30;// number of frames for a car, decreass with difficulty;
+    public static final int ROADROLLER_MIN_RATE= 17;
     public static final int ROADROLLER_SPEED = s(6);//Roadroller moves 6 frames per second
     
     public static final int TRAIN_RATE = 200;// number of frames for a car, decreass with difficulty;
-    public static final int TRAIN_MIN_RATE = 50;
+    public static final int TRAIN_MIN_RATE = 36;
     public static final int TRAIN_SPEED = s(25);//Train moves at 25 pixesl per frame by default
-    public static final int TRAIN_MAX_SPEED = s(60);//Train can move at 60 pixels per frame at its peak
+    public static final int TRAIN_MAX_SPEED = s(130);//Train can move at 60 pixels per frame at its peak
       
     
     // Rewind Time Settings
     
     public static final int MAX_REWIND_TIME = 360; //6 seconds
     public static final int REWIND_TIME = 120; // 2 seconds
+    
+    // Made In Heaven Settings
+     public static final int MIH_TICK_SPEED = 48; 
+    public static final int NORMAL_TICK_SPEED = 50; 
+    
+    
+    //Volume Setting
+    public static final int MASTER_VOLUME = 30;
     
     //Buttons
     
