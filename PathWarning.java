@@ -1,6 +1,6 @@
 import greenfoot.*;
 
-public class PathWarning extends Actor {
+public class PathWarning extends Actor implements Time_Snapshottable {
     private int timer = 60; // How long the warning stays (1 second)
 
     public PathWarning(int width, int height) {
@@ -27,5 +27,14 @@ public class PathWarning extends Actor {
         if (timer <= 0) {
             world.removeObject(this);
         }
+    }
+    
+    // --- TIME MACHINE ADDITIONS ---
+    public Time_ActorMemento captureState() {
+        return new Time_ActorMemento(this, getX(), getY(), timer);
+    }
+
+    public void restoreState(Time_ActorMemento m) {
+        this.timer = (int)m.customData;
     }
 }

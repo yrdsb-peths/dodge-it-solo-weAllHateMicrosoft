@@ -27,5 +27,7 @@ public class Mgr_Score {
             highScore = score;
         }
     }
+    
+    public static void setScore(int s) { score = s; }
 
 }

@@ -6,7 +6,8 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
  * @author (your name) 
  * @version (a version number or a date)
  */
-public class Roadroller extends Obstacles
+
+public class Roadroller extends Obstacles implements Time_Snapshottable
 {
     private int scoreToAdd = 1;
     /**
@@ -37,8 +38,11 @@ public class Roadroller extends Obstacles
     }
     
     public void collisionLogic(){
+    
         //I'm really afraid of that null pointer error so this is a safety check.
-        if (getWorld() == null) return; 
+        //Also dont scream when im rewinding
+        MyWorld world = (MyWorld) getWorld();
+        if (getWorld() == null|| world.isRewinding()) return; 
 
         // Get the player directly (no need to use isTouching first, this is faster)
         Player player = (Player) getOneIntersectingObject(Player.class);
@@ -68,5 +72,29 @@ public class Roadroller extends Obstacles
             
         }
         return;
+    }
+    
+    // Time machine stuff for time rewinding.
+
+    //These are the custom data stored for roadrollers
+    private static class RoadrollerData {
+        int speed, scoreToAdd;
+        RoadrollerData(int speed, int scoreToAdd) {
+            this.speed = speed;
+            this.scoreToAdd = scoreToAdd;
+        }
+    }
+    
+    //Captures the current state ands sends them back as a momento
+    public Time_ActorMemento captureState() {
+        return new Time_ActorMemento(this, getX(), getY(), 
+            new RoadrollerData(speed, scoreToAdd));
+    }
+    
+    //Restores state according to the momento
+    public void restoreState(Time_ActorMemento m) {
+        RoadrollerData d = (RoadrollerData) m.customData;
+        this.speed = d.speed;
+        this.scoreToAdd = d.scoreToAdd;
     }
 }

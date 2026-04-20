@@ -1,6 +1,6 @@
 import greenfoot.*;
 
-public class Train extends Obstacles {
+public class Train extends Obstacles implements Time_Snapshottable {
     private int state = 0; // 0: Waiting/Shaking, 1: Rushing
     private int waitTimer = 65; // Slightly longer than the PathWarning
     private int speed;
@@ -68,6 +68,33 @@ public class Train extends Obstacles {
             Mgr_Score.addScore(5); // Big points for dodging the fast one
             getWorld().removeObject(this);
         }
+    }
+    
+    
+    //Time Machine stuff for time rewinding
+    
+    //Stored custom data for train
+    private static class TrainData {
+        int speed, state, waitTimer;
+        TrainData(int speed, int state, int waitTimer) {
+            this.speed = speed;
+            this.state = state;
+            this.waitTimer = waitTimer;
+        }
+    }
+    
+    //Captures current state and stores it as a momento
+    public Time_ActorMemento captureState() {
+        return new Time_ActorMemento(this, getX(), getY(),
+                                     new TrainData(speed, state, waitTimer));
+    }
+    
+    //Restores previous state according to the momento
+    public void restoreState(Time_ActorMemento m) {
+        TrainData d = (TrainData) m.customData;
+        this.speed = d.speed;
+        this.state = d.state;
+        this.waitTimer = d.waitTimer;
     }
     
 

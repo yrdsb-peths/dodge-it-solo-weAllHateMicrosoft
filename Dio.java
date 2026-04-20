@@ -5,12 +5,12 @@ import java.util.HashMap; // Hash map for animation with its animator...
  *   (only one object) so static methods are used for convenience. 
  *   (a pro programmar would probably spit at me for that statement)
  */
-public class Dio extends Player
+public class Dio extends Player implements Time_Snapshottable
 {
     //A hashmap(dictionary) of animations with key: name and value: the corresponding animator
-    private HashMap<String, Mgr_Animator> animations = new HashMap<>();
+    private HashMap<String, Animator> animations = new HashMap<>();
     //The current animationor and action name it takes in
-    private Mgr_Animator currentAnimator;
+    private Animator currentAnimator;
     private String currentAnimName = "";
     
     
@@ -23,11 +23,13 @@ public class Dio extends Player
     private GameTimer activeTimer = null;
     private String defaultAnim = "Dash";
     
-    private final int moveSpeed = Config_Game.DIO_MOVE_SPEED;// 5 pixels per frame
+    private final int moveSpeed = GameConfig.DIO_MOVE_SPEED;// 5 pixels per frame
     
     //Storing death location
     private int dieX, dieY;
-    //Images are quite big so I'm scaling all of them by 0.8
+    
+    //Ability
+    private Ability_MadeInHeaven mihAbility = new Ability_MadeInHeaven();
     /*
      * Contructus a DIO by setting up animations.
      * Currently default animation is Dash as a placeholder
@@ -37,10 +39,10 @@ public class Dio extends Player
         String[] animNames = {"Idle", "Wry", "Dash", "High", "Intro","Scratch", "Roll","Lose", "WalkLeft", "WalkRight"};
         for (String name : animNames) {
             // Parameters: Folder name
-            animations.put(name, new Mgr_Animator("Dio", name, Config_Game.DIO_BASE_SCALE));
+            animations.put(name, new Animator("Dio", name, GameConfig.DIO_BASE_SCALE));
         }
         //Some animations use custom speeds: e.g. scratch is faster
-        animations.put("Scratch", new Mgr_Animator("Dio","Scratch",3, Config_Game.DIO_BASE_SCALE));
+        animations.put("Scratch", new Animator("Dio","Scratch",3, GameConfig.DIO_BASE_SCALE));
 
         // 2. Set the starting animation
         setAnimation("Dash");
@@ -62,12 +64,12 @@ public class Dio extends Player
      * Overloaded version that accepts a speed
      */
     public void setAnimation(String name, int speed) {
-    if (getWorld() == null) return; 
-    if (isDead && !name.equals("Lose")) return;
-    if (animations.containsKey(name)) {
-        animations.get(name).setSpeed(speed); // Update the speed
-        setAnimation(name);                   // Call the original logic to switch
-    }
+        if (getWorld() == null) return; 
+        if (isDead && !name.equals("Lose")) return;
+        if (animations.containsKey(name)) {
+            animations.get(name).setSpeed(speed); // Update the speed
+            setAnimation(name);                   // Call the original logic to switch
+        }
     }
     
     public void playTimedAnimation(String name, GameTimer timer){
@@ -84,6 +86,9 @@ public class Dio extends Player
         if (getWorld() == null) return; 
         setImage(currentAnimator.getCurrentFrame());
         
+        //******Made In Heaven Ability Animation
+        mihAbility.update(this, (MyWorld)getWorld());
+        
         //Check if we are in a timed, temporary sequence
         if(!isDead &&activeTimer != null){
             activeTimer.update((MyWorld)getWorld());
@@ -98,6 +103,11 @@ public class Dio extends Player
      */
     protected void movementLogic(){
         if (getWorld() == null) return; 
+        //TRY TO TRIGGER ABILITY
+        if (Greenfoot.isKeyDown(GameConfig.MIH_BUTTON)) {
+            mihAbility.activate();
+             
+        }
         if (isDead) {
             MyWorld world = (MyWorld) getWorld();
             
@@ -108,41 +118,87 @@ public class Dio extends Player
                 shake();
             }
             // 2. Check if the time is up
-            if (deathTimer.isExpired()) {
-                world.getGSM().changeState(new State_GameOver());
+            if (deathTimer.isExpired()&& !world.isRewinding()) {
+                world.getGSM().changeState(new GameOverState());
             }
         } 
             
-        else{
+        else {
             if(Greenfoot.mouseClicked(null)){
                 playRandomAnimation();
             }
             
-            if (Greenfoot.isKeyDown("up")) 
-            {
-                setLocation(getX(), getY() - moveSpeed);
+            // 1. Calculate how fast we are moving
+            int currentSpeed = (int)(moveSpeed * mihAbility.getSpeedMultiplier());
+            
+            // 2. Start with the current position
+            int nextX = getX();
+            int nextY = getY();
+            
+            // 3. Update the intended position based on keys
+            boolean isMoving = false;
+            if (Greenfoot.isKeyDown("up")){
+                nextY -= currentSpeed; isMoving = true;
+            }
+            if (Greenfoot.isKeyDown("down")){
+                nextY += currentSpeed; isMoving = true;
+            }
+            //Snatch the player to the closest road during acceleration
+            // ONLY apply the magnet if Made in Heaven is active AND the player isn't pushing a key
+            if (mihAbility.isActive() && !isMoving) {
+                // Find the closest lane
+                int closestLane = GameConfig.LANES[0];
+                int minDistance = Math.abs(nextY - closestLane);
+                
+                for (int i = 1; i < GameConfig.LANES.length; i++) {
+                    int dist = Math.abs(nextY - GameConfig.LANES[i]);
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        closestLane = GameConfig.LANES[i];
+                    }
+                }
+                
+                // Pull Dio towards the closest lane
+                if (minDistance > 0) {
+                    if (minDistance <= currentSpeed) {
+                        nextY = closestLane; // Snap perfectly to center
+                    } else if (nextY < closestLane) {
+                        nextY += currentSpeed; // Drift down
+                    } else {
+                        nextY -= currentSpeed; // Drift up
+                    }
+                }
             }
             
-            if (Greenfoot.isKeyDown("down")) 
-            {
-                setLocation(getX(), getY() + moveSpeed);
-            }
-            if (getY() < 0) setLocation(getX(), 0);
-            if (getY() > getWorld().getHeight() - 1) setLocation(getX(), getWorld().getHeight() - 1);
+            // 4. Calculate the "No-Submerge" limits
+            int halfWidth = getImage().getWidth() / 2;
+            int halfHeight = getImage().getHeight() / 2;
+            int worldWidth = getWorld().getWidth();
+            int worldHeight = getWorld().getHeight();
+
+            // 5. THE LIMITER (Clamping)
+            // If the next position would put the edge off-screen, 
+            // set the position to the exact edge instead.
+            if (nextX < halfWidth) nextX = halfWidth;
+            if (nextX > worldWidth - halfWidth) nextX = worldWidth - halfWidth;
             
-            // Prevents moving off left/right (if i add horizontal movement later)
-            if (getX() < 0) setLocation(0, getY());
-            if (getX() > getWorld().getWidth() - 1) setLocation(getWorld().getWidth() - 1, getY());
+            if (nextY < halfHeight) nextY = halfHeight;
+            if (nextY > worldHeight - halfHeight) nextY = worldHeight - halfHeight;
+
+            // 6. Final Move (Only happens once, perfectly smooth)
+            setLocation(nextX, nextY);
         }
         
     }
     //Die method is public because anyone can tell player to die
     public void die(){
         MyWorld world = (MyWorld) getWorld();
-        if (isDead) return;
+        if (isDead|| world.isRewinding()) return;
         isDead = true;
+        SadFace sadFace = new SadFace();
+        getWorld().addObject(sadFace,world.getWidth()/2, world.getHeight()/2);
         setAnimation("Lose");
-        Mgr_Audio.playPool("dioLostVoices");
+        AudioManager.playPool("dioLostVoices");
         //Set death location
         dieX = getX();
         dieY = getY();
@@ -172,7 +228,7 @@ public class Dio extends Player
      */
     protected void onPauseUpdate(MyWorld world) {
         if (!bannerSpawned) {
-            world.addObject(new Banner(Config_Boss.DIO), Config_Game.s(1120), Config_Game.s(200));
+            world.addObject(new Banner(BossConfig.DIO), GameConfig.s(1120), GameConfig.s(200));
             bannerSpawned = true;
             playTimedAnimation("Wry", highTimer);
         }
@@ -210,5 +266,59 @@ public class Dio extends Player
             // 3. Return to the exact center when finished
             setLocation(dieX, dieY);
         }
+    }
+
+    
+    //***********************************************************
+    //=========Tme Machine Stuff For Time Rewinding==============
+        private static class DioData {
+        boolean isDead;
+        String animName;
+        int deathTimerRemaining;
+        boolean deathTimerActive;
+        int mihFramesRemaining;
+        boolean mihActive;
+
+        
+        DioData(boolean isDead, String animName, int deathTimerRemaining, boolean active, 
+                int mihFrames, boolean mihActive) {
+            this.isDead = isDead;
+            this.animName = animName;
+            this.deathTimerRemaining = deathTimerRemaining;
+            this.deathTimerActive = active;
+            this.mihFramesRemaining = mihFrames;
+            this.mihActive = mihActive;
+        }
+    }
+    
+    public Time_ActorMemento captureState() {
+        return new Time_ActorMemento(this, getX(), getY(),
+            new DioData(isDead, currentAnimName,
+                        deathTimer.getRemainingFrames(),
+                        deathTimer.isActive(), mihAbility.getRemainingFrames(),// Ask the ability for frames
+                        mihAbility.isActive()));          // Ask if it's currently running));
+    }
+    
+    public void restoreState(Time_ActorMemento m) {
+        DioData d = (DioData) m.customData;
+        
+        // Check if we're being revived
+        if (this.isDead && !d.isDead) {
+            // Remove the sad face that appeared on death
+            if (getWorld() != null) {
+                getWorld().removeObjects(getWorld().getObjects(SadFace.class));
+            }
+        }
+        
+        this.isDead = d.isDead;
+        // Don't forcibly switch to death anim if alive
+        if (!isDead) setAnimation(d.animName);
+        deathTimer.setRemainingFrames(d.deathTimerRemaining);
+        if (d.deathTimerActive) deathTimer.start(); else deathTimer.stop();
+        
+        
+        // --- RESTORE MADE IN HEAVEN STATE ---
+        mihAbility.setRemainingFrames(d.mihFramesRemaining);
+        if (d.mihActive) mihAbility.startTimer(); else mihAbility.stopTimer();
     }
 }

@@ -22,7 +22,7 @@ public class Config_Game {
         //If you dont know why an ambulance is this powerful, you probably have to ask Kira Yoshkage, i think he knows the answer.
     
     //b. Difficulty settings
-    public static final int LEVEL_UP_TIME = 300;//Game gets more difficulty per 300 frame
+    public static final int LEVEL_UP_TIME = 200;//Game gets more difficulty per 200 frame
     public static final int ROADROLLER_RATE = 60;// number of frames for a car, decreass with difficulty;
     public static final int ROADROLLER_MIN_RATE= 15;
     public static final int ROADROLLER_SPEED = s(6);//Roadroller moves 6 frames per second
@@ -32,6 +32,18 @@ public class Config_Game {
     public static final int TRAIN_SPEED = s(25);//Train moves at 25 pixesl per frame by default
     public static final int TRAIN_MAX_SPEED = s(60);//Train can move at 60 pixels per frame at its peak
       
+    
+    // Rewind Time Settings
+    
+    public static final int MAX_REWIND_TIME = 360; //6 seconds
+    public static final int REWIND_TIME = 120; // 2 seconds
+    
+    //Buttons
+    
+    public static final String TIME_STOP_BUTTON = "w";//Handled in PlayingState
+    public static final String REWIND_TIME_BUTTON = "r";//Hanlded in PlayingState
+    public static final String MIH_BUTTON = "s";//Handled in Dio
+    
     // Road & Lanes
     public static final int ROAD_SCROLL_SPEED = s(5);//The background "roads" moves at 5 pixels per second
     // We calculate lanes based on the scaled world height
