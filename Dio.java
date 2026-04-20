@@ -27,7 +27,9 @@ public class Dio extends Player implements Time_Snapshottable
     
     //Storing death location
     private int dieX, dieY;
-    //Images are quite big so I'm scaling all of them by 0.8
+    
+    //Ability
+    private Ability_MadeInHeaven mihAbility = new Ability_MadeInHeaven();
     /*
      * Contructus a DIO by setting up animations.
      * Currently default animation is Dash as a placeholder
@@ -62,12 +64,12 @@ public class Dio extends Player implements Time_Snapshottable
      * Overloaded version that accepts a speed
      */
     public void setAnimation(String name, int speed) {
-    if (getWorld() == null) return; 
-    if (isDead && !name.equals("Lose")) return;
-    if (animations.containsKey(name)) {
-        animations.get(name).setSpeed(speed); // Update the speed
-        setAnimation(name);                   // Call the original logic to switch
-    }
+        if (getWorld() == null) return; 
+        if (isDead && !name.equals("Lose")) return;
+        if (animations.containsKey(name)) {
+            animations.get(name).setSpeed(speed); // Update the speed
+            setAnimation(name);                   // Call the original logic to switch
+        }
     }
     
     public void playTimedAnimation(String name, GameTimer timer){
@@ -84,6 +86,9 @@ public class Dio extends Player implements Time_Snapshottable
         if (getWorld() == null) return; 
         setImage(currentAnimator.getCurrentFrame());
         
+        //******Made In Heaven Ability Animation
+        mihAbility.update(this, (MyWorld)getWorld());
+        
         //Check if we are in a timed, temporary sequence
         if(!isDead &&activeTimer != null){
             activeTimer.update((MyWorld)getWorld());
@@ -98,6 +103,14 @@ public class Dio extends Player implements Time_Snapshottable
      */
     protected void movementLogic(){
         if (getWorld() == null) return; 
+        //TRY TO TRIGGER ABILITY
+        if (Greenfoot.isKeyDown("m")) {
+            AudioManager.play("speed_up_time");
+            mihAbility.activate();
+            
+            //DELETE THIS LATER@!!!
+            Greenfoot.setSpeed(55); 
+        }
         if (isDead) {
             MyWorld world = (MyWorld) getWorld();
             
@@ -113,26 +126,41 @@ public class Dio extends Player implements Time_Snapshottable
             }
         } 
             
-        else{
+        else {
             if(Greenfoot.mouseClicked(null)){
                 playRandomAnimation();
             }
             
-            if (Greenfoot.isKeyDown("up")) 
-            {
-                setLocation(getX(), getY() - moveSpeed);
-            }
+            // 1. Calculate how fast we are moving
+            int currentSpeed = (int)(moveSpeed * mihAbility.getSpeedMultiplier());
             
-            if (Greenfoot.isKeyDown("down")) 
-            {
-                setLocation(getX(), getY() + moveSpeed);
-            }
-            if (getY() < 0) setLocation(getX(), 0);
-            if (getY() > getWorld().getHeight() - 1) setLocation(getX(), getWorld().getHeight() - 1);
+            // 2. Start with the current position
+            int nextX = getX();
+            int nextY = getY();
             
-            // Prevents moving off left/right (if i add horizontal movement later)
-            if (getX() < 0) setLocation(0, getY());
-            if (getX() > getWorld().getWidth() - 1) setLocation(getWorld().getWidth() - 1, getY());
+            // 3. Update the intended position based on keys
+            if (Greenfoot.isKeyDown("up"))    nextY -= currentSpeed;
+            if (Greenfoot.isKeyDown("down"))  nextY += currentSpeed;
+            if (Greenfoot.isKeyDown("left"))  nextX -= currentSpeed;
+            if (Greenfoot.isKeyDown("right")) nextX += currentSpeed;
+
+            // 4. Calculate the "No-Submerge" limits
+            int halfWidth = getImage().getWidth() / 2;
+            int halfHeight = getImage().getHeight() / 2;
+            int worldWidth = getWorld().getWidth();
+            int worldHeight = getWorld().getHeight();
+
+            // 5. THE LIMITER (Clamping)
+            // If the next position would put the edge off-screen, 
+            // set the position to the exact edge instead.
+            if (nextX < halfWidth) nextX = halfWidth;
+            if (nextX > worldWidth - halfWidth) nextX = worldWidth - halfWidth;
+            
+            if (nextY < halfHeight) nextY = halfHeight;
+            if (nextY > worldHeight - halfHeight) nextY = worldHeight - halfHeight;
+
+            // 6. Final Move (Only happens once, perfectly smooth)
+            setLocation(nextX, nextY);
         }
         
     }
@@ -222,12 +250,18 @@ public class Dio extends Player implements Time_Snapshottable
         String animName;
         int deathTimerRemaining;
         boolean deathTimerActive;
+        int mihFramesRemaining;
+        boolean mihActive;
+
         
-        DioData(boolean isDead, String animName, int deathTimerRemaining, boolean active) {
+        DioData(boolean isDead, String animName, int deathTimerRemaining, boolean active, 
+                int mihFrames, boolean mihActive) {
             this.isDead = isDead;
             this.animName = animName;
             this.deathTimerRemaining = deathTimerRemaining;
             this.deathTimerActive = active;
+            this.mihFramesRemaining = mihFrames;
+            this.mihActive = mihActive;
         }
     }
     
@@ -235,7 +269,8 @@ public class Dio extends Player implements Time_Snapshottable
         return new Time_ActorMemento(this, getX(), getY(),
             new DioData(isDead, currentAnimName,
                         deathTimer.getRemainingFrames(),
-                        deathTimer.isActive()));
+                        deathTimer.isActive(), mihAbility.getRemainingFrames(),// Ask the ability for frames
+                        mihAbility.isActive()));          // Ask if it's currently running));
     }
     
     public void restoreState(Time_ActorMemento m) {
@@ -254,5 +289,10 @@ public class Dio extends Player implements Time_Snapshottable
         if (!isDead) setAnimation(d.animName);
         deathTimer.setRemainingFrames(d.deathTimerRemaining);
         if (d.deathTimerActive) deathTimer.start(); else deathTimer.stop();
+        
+        
+        // --- RESTORE MADE IN HEAVEN STATE ---
+        mihAbility.setRemainingFrames(d.mihFramesRemaining);
+        if (d.mihActive) mihAbility.startTimer(); else mihAbility.stopTimer();
     }
 }

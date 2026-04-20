@@ -17,8 +17,14 @@ public class MyWorld extends World {
         //Initiate a game state manager, pasing this world (MyWorld) as the argument
         gsm = new GameStateManager(this);//gsm stands for game state manager.
         
+        //Set the order of rendeirng:
+        //UI on top, then Dio, then after images, then the roadrollers
+        setPaintOrder(UIText.class, UI_RewindBar.class, FX_RewindOverlay.class, 
+                      Dio.class, FX_Afterimage.class, Obstacles.class, ScrollingRoad.class);
+                      
         //Start the game in the playing state
         //Remember, pushState adds the state on top of the stack,and enters that state
+        
         playingState = new PlayingState();
         gsm.pushState(new MenuState());
         //Initilaise the audio manager to load sounds into RAM

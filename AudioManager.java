@@ -21,6 +21,7 @@ public class AudioManager {
         loadSound("dio_bgm", "eye_of_heaven_dio_bgm.mp3", 60);
         loadSound("lost_bgm", "brawl_stars_lost_bgm.mp3", 50);
         loadSound("car_crash", "car_crash.mp3", 70);
+        loadSound("speed_up_time","speed_up_time.mp3", 100);
         
         // Pre-load voice pools
         

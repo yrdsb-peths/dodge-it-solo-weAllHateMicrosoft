@@ -79,6 +79,26 @@ public class PlayingState implements GameState {
             rewindManager.record(world, spawnManager);
         }
         
+        if (Greenfoot.isKeyDown("n")) { 
+            
+            Greenfoot.setSpeed(50); 
+        } 
+        //Testing speeding up game tick
+        /*
+        if (Greenfoot.isKeyDown("m")) { 
+            // "Made in Heaven": Speed up time!
+            Greenfoot.setSpeed(58); 
+        } 
+        if (Greenfoot.isKeyDown("n")) { 
+            
+            Greenfoot.setSpeed(46); 
+        } 
+        else { 
+            // Let go of the keys? Back to normal time.
+            Greenfoot.setSpeed(50); 
+        }
+        */
+        
         //Update spawning manager and score. 
         spawnManager.update(world);
         scoreDisplay.setText("SCORE: " + ScoreManager.getScore());
@@ -90,6 +110,7 @@ public class PlayingState implements GameState {
         //So exit is only called when the entire playing state is over (aka game is lost)
         AudioManager.stop("dio_bgm");
         world.removeObjects(world.getObjects(null));
+        Greenfoot.setSpeed(50);
     }
     
     //Getter methods 
