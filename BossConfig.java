@@ -6,7 +6,7 @@ import greenfoot.*;
  * @author (your name) 
  * @version (a version number or a date)
  */
-public enum Config_Boss
+public enum BossConfig  
 {
    DIO(
         Color.BLACK, 
@@ -22,7 +22,7 @@ public enum Config_Boss
     public final String soundsKey;
     public final Banner.SpriteOverlay[] overlays;
 
-    private Config_Boss(Color color, String soundsKey, Banner.SpriteOverlay[] overlays) {
+    private BossConfig(Color color, String soundsKey, Banner.SpriteOverlay[] overlays) {
         this.bgColor = color;
         this.soundsKey = soundsKey;
         this.overlays = overlays;

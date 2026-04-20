@@ -34,7 +34,7 @@ import java.io.File;
  */
 
 
-public class Mgr_Animator  
+public class Animator  
 {
     public static final int FRAME_DELAY = 6;//Frames per image, higher = slower; this is the standard speed
     private GreenfootImage[] frames;
@@ -46,7 +46,7 @@ public class Mgr_Animator
      * The more detailed constructor for animator that takes in more parameters 
      * to help with debugging and customizability. 
      */
-    public Mgr_Animator(String baseFolder,String folderName,String prefix, int frameCount, int speed, double scaleFactor){
+    public Animator(String baseFolder,String folderName,String prefix, int frameCount, int speed, double scaleFactor){
         this.speed = speed;
         frames = new GreenfootImage[frameCount]; 
         
@@ -66,7 +66,7 @@ public class Mgr_Animator
      * The more general constructor for animator that only takes in folder name
      * Easy to call
      */
-    public Mgr_Animator(String baseFolder, String folderName, double scaleFactor) {
+    public Animator(String baseFolder, String folderName, double scaleFactor) {
         this(baseFolder, folderName, folderName, countFrames(baseFolder, folderName), FRAME_DELAY, scaleFactor);
     }
 
@@ -74,7 +74,7 @@ public class Mgr_Animator
      * The more general constructor for animator that only takes in folder name AND SPEED
      * Easy to call
      */
-    public Mgr_Animator(String baseFolder, String folderName, int speed, double scaleFactor) {
+    public Animator(String baseFolder, String folderName, int speed, double scaleFactor) {
         this(baseFolder, folderName, folderName, countFrames(baseFolder, folderName), speed, scaleFactor);
     }
     

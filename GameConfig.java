@@ -1,6 +1,6 @@
 import greenfoot.*;
 
-public class Config_Game {
+public class GameConfig {
     // 1. GLOBAL SCALING: This scales every image. By default, it is 1. To make things larger and occupy more screen, it is currently 1.5 
     public static final float SCALE = 1.5f; 
     

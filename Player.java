@@ -31,11 +31,11 @@ public abstract class Player extends Actor
         if(world == null) return;
         
         //Only update normally if game is in playing state
-        if(!world.getGSM().isState(State_Playing.class)){
+        if(!world.getGSM().isState(PlayingState.class)){
             //If it is in paused state, we can carry out some special things
             //But normally nothing happens: nobody can move.
-            if(world.getGSM().isState(State_Paused.class)){
-                onPauseUpdate(world);
+            if(world.getGSM().isState(PausedState.class)){
+            onPauseUpdate(world);
             }
             return;
         }

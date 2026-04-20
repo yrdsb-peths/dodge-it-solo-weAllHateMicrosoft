@@ -1,7 +1,7 @@
 import greenfoot.*;
 
 
-public class Mgr_Score {
+public class ScoreManager {
     private static int score = 0;
     private static int highScore = 0;
 

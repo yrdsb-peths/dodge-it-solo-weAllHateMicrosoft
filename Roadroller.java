@@ -27,9 +27,9 @@ public class Roadroller extends Obstacles implements Time_Snapshottable
         setImage(img);
         //Resizing and orienting the image
         getImage().mirrorHorizontally();
-        getImage().scale(Config_Game.ROADROLLER_WIDTH, Config_Game.ROADROLLER_WIDTH);
+        getImage().scale(GameConfig.ROADROLLER_WIDTH, GameConfig.ROADROLLER_WIDTH);
         //Moves at 6 pixels per frame
-        speed = Config_Game.ROADROLLER_SPEED;
+        speed = GameConfig.ROADROLLER_SPEED;
     }
     
     public void movementLogic(){
@@ -48,7 +48,7 @@ public class Roadroller extends Obstacles implements Time_Snapshottable
         Player player = (Player) getOneIntersectingObject(Player.class);
         if (player != null && !player.isDead()) {
             if (player.checkCustomHitbox(this, 0.8)) {
-                Mgr_Audio.play("car_crash");
+                AudioManager.play("car_crash");
                 player.die();
             }
         }
@@ -64,7 +64,7 @@ public class Roadroller extends Obstacles implements Time_Snapshottable
             if (!players.isEmpty()) {
                 Player player = players.get(0);
                 if (!player.isDead()) {
-                    Mgr_Score.addScore(scoreToAdd);
+                    ScoreManager.addScore(scoreToAdd);
                 }
             }
             

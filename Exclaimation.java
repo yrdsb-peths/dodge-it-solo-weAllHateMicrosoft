@@ -8,10 +8,10 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
  */
 public class Exclaimation extends Actor implements Time_Snapshottable {
     private GameTimer lifeTimer = new GameTimer(1.0, false);
-    private Mgr_Animator exclaimAnim;
+    private Animator exclaimAnim;
     
     public Exclaimation(){
-        exclaimAnim = new Mgr_Animator("symbols", "exclaimation", 0.1 * Config_Game.SCALE);
+        exclaimAnim = new Animator("symbols", "exclaimation", 0.1 * GameConfig.SCALE);
         lifeTimer.start();
     }
     public void act()

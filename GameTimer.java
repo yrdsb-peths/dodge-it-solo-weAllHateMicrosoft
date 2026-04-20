@@ -70,7 +70,7 @@ public class GameTimer {
     public void update(MyWorld world) {
         // THE ROBUST PART: Only tick down if the game isn't paused
         // and (optionally) if time isn't stopped by DIO.
-        if (active && world.getGSM().isState(State_Playing.class)) {
+        if (active && world.getGSM().isState(PlayingState.class)) {
             if (remainingFrames > 0) {
                 remainingFrames--;
             } else if (loop) {

@@ -17,7 +17,7 @@ public abstract class Obstacles extends Actor
     public void act()
     {
         MyWorld world = (MyWorld) getWorld();
-        if(world == null || !world.getGSM().isState(State_Playing.class))return;
+        if(world == null || !world.getGSM().isState(PlayingState.class))return;
         
         movementLogic();
         collisionLogic();

@@ -13,7 +13,7 @@ public class PathWarning extends Actor implements Time_Snapshottable {
     public void act() {
         // Standard GSM check so it freezes during Time Stop
         MyWorld world = (MyWorld) getWorld();
-        if (world == null || !world.getGSM().isState(State_Playing.class)) return;
+        if (world == null || !world.getGSM().isState(PlayingState.class)) return;
 
         timer--;
         
