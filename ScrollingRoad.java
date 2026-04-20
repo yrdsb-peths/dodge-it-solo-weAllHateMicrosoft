@@ -2,12 +2,14 @@ import greenfoot.*;
 
 
 public class ScrollingRoad extends Actor implements Time_Snapshottable {
-    private static final int SPEED = GameConfig.ROAD_SCROLL_SPEED;//Moves 5 pixels per frame
+    private static int speed = GameConfig.ROAD_SCROLL_SPEED;//Moves 5 pixels per frame
+    private static int maxSpeed = GameConfig.ROAD_MAX_SPEED;
     private int width = GameConfig.WORLD_WIDTH;
     // THE LANE MAP: Other classes (like SpawnManager) can use this!
     // For a 400px height with 5 lanes, centers are: 40, 120, 200, 280, 360
 
     public ScrollingRoad() {
+        speed = GameConfig.ROAD_SCROLL_SPEED;
         drawPlaceholderRoad();
     }
 
@@ -41,7 +43,7 @@ public class ScrollingRoad extends Actor implements Time_Snapshottable {
     }
 
     private void scroll() {
-        setLocation(getX() - SPEED, getY());
+        setLocation(getX() - speed, getY());
         
         // If we moved off screen, teleport to the back of the "twin"
         if (getX() <= -width / 2) {
@@ -49,6 +51,9 @@ public class ScrollingRoad extends Actor implements Time_Snapshottable {
         }
     }
     
+    public static void increaseSpeed(int amount){
+        if (speed < maxSpeed)speed+=amount;
+    }
     // --- TIME MACHINE ---
     public Time_ActorMemento captureState() {
         // We just save position. No custom data needed (null).

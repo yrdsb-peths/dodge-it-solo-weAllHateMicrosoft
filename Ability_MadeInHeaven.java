@@ -3,7 +3,7 @@ import greenfoot.*;
 public class Ability_MadeInHeaven {
     private GameTimer durationTimer = new GameTimer(4.8, false); // Lasts 6.5 seconds to match the sound effect
     private int afterimageCounter = 0;
-    private final double speedMultiplier = 3.5; // How much faster?
+    private final double speedMultiplier = 2; // How much faster?
     
     
     private final int ACCELERATED_TICK_SPEED = GameConfig.MIH_TICK_SPEED;//Everything moves slow as you speed up

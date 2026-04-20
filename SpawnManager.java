@@ -60,6 +60,8 @@ public class SpawnManager
         if(trainRate > trainMin) trainRate -= 5;
         
         if(trainSpeed > trainSpeedMax) trainSpeed += 5;
+        
+        ScrollingRoad.increaseSpeed(1);
     }
     
     private void spawnRoadroller(MyWorld world) {

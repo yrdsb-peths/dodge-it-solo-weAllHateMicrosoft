@@ -48,7 +48,6 @@ public class Roadroller extends Obstacles implements Time_Snapshottable
         Player player = (Player) getOneIntersectingObject(Player.class);
         if (player != null && !player.isDead()) {
             if (player.checkCustomHitbox(this, 0.8)) {
-                AudioManager.play("car_crash");
                 player.die();
             }
         }
@@ -74,11 +73,17 @@ public class Roadroller extends Obstacles implements Time_Snapshottable
         return;
     }
     
+    /*
+    public static void increaseSpeed(int amount){
+        if (speed < maxSpeed)speed+=amount;
+    }
+    */
+    
     // Time machine stuff for time rewinding.
 
     //These are the custom data stored for roadrollers
     private static class RoadrollerData {
-        int speed, scoreToAdd;
+        private static int speed, scoreToAdd;
         RoadrollerData(int speed, int scoreToAdd) {
             this.speed = speed;
             this.scoreToAdd = scoreToAdd;

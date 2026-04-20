@@ -22,7 +22,7 @@ public class GameConfig {
         //If you dont know why an ambulance is this powerful, you probably have to ask Kira Yoshkage, i think he knows the answer.
     
     //b. Difficulty settings
-    public static final int LEVEL_UP_TIME = 200;//Game gets more difficulty per 200 frame
+    public static final int LEVEL_UP_TIME = 1;//Game gets more difficulty per 200 frame
     public static final int ROADROLLER_RATE = 30;// number of frames for a car, decreass with difficulty;
     public static final int ROADROLLER_MIN_RATE= 17;
     public static final int ROADROLLER_SPEED = s(6);//Roadroller moves 6 frames per second
@@ -54,6 +54,7 @@ public class GameConfig {
     
     // Road & Lanes
     public static final int ROAD_SCROLL_SPEED = s(5);//The background "roads" moves at 5 pixels per second
+    public static final int ROAD_MAX_SPEED = s(5);
     // We calculate lanes based on the scaled world height
     public static final int[] LANES = { s(40), s(120), s(200), s(280), s(360) };//These are the locations of the "lanes"
     

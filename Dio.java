@@ -30,6 +30,9 @@ public class Dio extends Player implements Time_Snapshottable
     
     //Ability
     private Ability_MadeInHeaven mihAbility = new Ability_MadeInHeaven();
+    
+    //I-Frame
+    private GameTimer iFrameTimer = new GameTimer(0.5, false);
     /*
      * Contructus a DIO by setting up animations.
      * Currently default animation is Dash as a placeholder
@@ -97,12 +100,25 @@ public class Dio extends Player implements Time_Snapshottable
                 setAnimation(defaultAnim);
             }
         }
+        
+        //"Blink" if we are in i-frame
+         if (iFrameTimer.isActive() && !iFrameTimer.isExpired()) {
+            if (iFrameTimer.getRemainingFrames() % 4 < 2) {
+                getImage().setTransparency(60); // Dim
+            } else {
+                getImage().setTransparency(255); // Normal
+            }
+        } else {
+            getImage().setTransparency(255); // Ensure reset to normal
+        }
     }
     /*
      * Current, trashy movement logic that should be worked on
      */
     protected void movementLogic(){
         if (getWorld() == null) return; 
+        //Update I-frame timer
+        iFrameTimer.update((MyWorld)getWorld());
         //TRY TO TRIGGER ABILITY
         if (Greenfoot.isKeyDown(GameConfig.MIH_BUTTON)) {
             mihAbility.activate(); 
@@ -163,9 +179,12 @@ public class Dio extends Player implements Time_Snapshottable
     }
     //Die method is public because anyone can tell player to die
     public void die(){
+        //Do not die if invincible
+        if (iFrameTimer.isActive() && !iFrameTimer.isExpired()) return;
         MyWorld world = (MyWorld) getWorld();
         if (isDead|| world.isRewinding()) return;
         isDead = true;
+        AudioManager.play("car_crash");
         SadFace sadFace = new SadFace();
         getWorld().addObject(sadFace,world.getWidth()/2, world.getHeight()/2);
         setAnimation("Lose");
@@ -291,5 +310,11 @@ public class Dio extends Player implements Time_Snapshottable
         // --- RESTORE MADE IN HEAVEN STATE ---
         mihAbility.setRemainingFrames(d.mihFramesRemaining);
         if (d.mihActive) mihAbility.startTimer(); else mihAbility.stopTimer();
+    }
+    
+    public void startIFrame(double seconds) {
+        iFrameTimer.setDuration(seconds);
+        iFrameTimer.reset();
+        iFrameTimer.start();
     }
 }

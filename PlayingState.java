@@ -74,7 +74,13 @@ public class PlayingState implements GameState {
             if (!stillGoing && rewindOverlay != null) {
                 if (rewindOverlay.getWorld() != null) world.removeObject(rewindOverlay);
                 rewindOverlay = null;//Clean up visuals
-                AudioManager.setAllSoundsPaused(false);//Reusme normal game music, sound effect is a bit tricky, ill just let it be
+                Greenfoot.setSpeed(50); 
+                AudioManager.setAllSoundsPaused(false);//Reusme normal game music
+                //Give i-frame to dio
+                List<Dio> dios = world.getObjects(Dio.class);
+                if (!dios.isEmpty()) {
+                    dios.get(0).startIFrame(1.0); // 1 second of safety after rewind
+                }
             }
         } else {
             //Normal gameplay(recording mode): record the current object states to the history stack.
@@ -104,6 +110,7 @@ public class PlayingState implements GameState {
         //Update spawning manager and score. 
         spawnManager.update(world);
         scoreDisplay.setText("SCORE: " + ScoreManager.getScore());
+        
     }
     
     public void exit(MyWorld world) {
